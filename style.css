@@ -983,3 +983,16 @@ main h3 {
   .console { grid-template-rows: auto 1fr; }
   .console-side { border-right: 0; border-bottom: 1px solid var(--line); max-height: 45dvh; }
 }
+
+/* A conversation whose last message came from the visitor. */
+.waiting-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--crisis-line);
+  vertical-align: middle;
+  margin-left: 2px;
+}
+
+.signin-claim { border-left-color: var(--accent-ink); background: var(--bg-sunk); }

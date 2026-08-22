@@ -128,6 +128,16 @@ function startPolling() {
   polling = setInterval(poll, 3000);
 }
 
+// Browsers throttle timers in background tabs, so a reply written while
+// the visitor is looking elsewhere would sit there until the tab wakes.
+// Catch up the moment they come back.
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'visible' && session) {
+    poll();
+    refreshStatus();
+  }
+});
+
 /* ---- Sending ---------------------------------------------- */
 
 form.addEventListener('submit', async function (e) {

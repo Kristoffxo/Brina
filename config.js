@@ -1,17 +1,17 @@
 /* ============================================================
-   Brina — the only two values you need to fill in.
+   Brina — Supabase connection.
 
-   Supabase dashboard → Project Settings → API
-     Project URL   →  url
-     anon / public →  anonKey
+   This is the publishable key. It is designed to be public: it
+   is in this file, in the git repo, and visible to anyone who
+   views source. That is fine and intended.
 
-   The anon key is meant to be public. It is safe in this file
-   and safe in a git repo. Never put the service_role key here.
+   The secret key (sb_secret_… / service_role) must never appear
+   here or anywhere in this folder.
    ============================================================ */
 
 window.BRINA_CONFIG = {
-  url: 'PASTE_YOUR_SUPABASE_PROJECT_URL_HERE',
-  anonKey: 'PASTE_YOUR_SUPABASE_ANON_KEY_HERE'
+  url: 'https://yelznjutyfzgfqroqgrk.supabase.co',
+  anonKey: 'sb_publishable_3xGrF9pSv0Q_QyDOKywmJA_3plo1gQ_'
 };
 
 window.BRINA_CONFIG.ready = !/^PASTE_/.test(window.BRINA_CONFIG.url) &&

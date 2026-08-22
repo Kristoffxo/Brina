@@ -21,17 +21,21 @@
 <!-- ── Sign in ─────────────────────────────────────────────── -->
 <div class="signin" id="signin" hidden>
   <form class="signin-card" id="signin-form">
-    <h1>Listening</h1>
+    <h1 id="signin-title">Listening</h1>
+
     <p class="signin-note" id="config-warning" hidden>
-      <strong>Not connected.</strong> Add your Supabase URL and anon key to
+      <strong>Not connected.</strong> Add your Supabase URL and publishable key to
       <code>config.js</code> first.
     </p>
 
-    <label for="email">Email</label>
-    <input type="email" id="email" autocomplete="username" required>
+    <p class="signin-note signin-claim" id="claim-note" hidden>
+      <strong>Nobody has claimed this console yet.</strong> Pick a passphrase now and
+      it becomes the lock. Ten characters or more. Write it down &mdash; there is no
+      reset.
+    </p>
 
-    <label for="password">Password</label>
-    <input type="password" id="password" autocomplete="current-password" required>
+    <label for="passphrase" id="passphrase-label">Passphrase</label>
+    <input type="password" id="passphrase" autocomplete="current-password" required>
 
     <button type="submit" class="btn" id="signin-btn">Sign in</button>
     <p class="signin-error" id="signin-error" hidden></p>

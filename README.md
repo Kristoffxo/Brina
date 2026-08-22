@@ -11,51 +11,32 @@ admin.html    the listener's console        → admin.js
 style.css     everything, both themes
 script.js     landing page only
 config.js     the two values you fill in
-schema.sql    paste into Supabase once
+schema.sql    the whole database, for a rebuild from scratch
+fix.sql       the remaining piece to run once
 ```
 
 ---
 
-## Setup, start to finish
+## Setup
 
-### 1. Make the Supabase project
+The database is already set up on your project
+(`yelznjutyfzgfqroqgrk`), and `config.js` already has your URL and
+publishable key. Two things left:
 
-supabase.com → New project. Pick the region closest to you (Mumbai / ap-south-1
-if you are in India — it makes replies feel instant).
+### 1. Run `fix.sql`
 
-### 2. Run the schema
+Supabase → SQL Editor → New query → paste all of `fix.sql` → Run. It will warn
+about destructive operations; that is the cleanup of the test rows at the
+bottom. Confirm it.
 
-SQL Editor → New query → paste the whole of `schema.sql` → Run. It creates the
-tables, the row-level-security policies, and the functions the chat runs on.
+### 2. Open `admin.html` and choose a passphrase
 
-### 3. Fill in `config.js`
+There is no account and no email. The first person to open the console picks a
+passphrase and that becomes the lock — so do this before the site is public.
+Ten characters minimum. Write it down; there is no reset.
 
-Project Settings → API. Copy **Project URL** and the **anon / public** key into
-`config.js`.
-
-The anon key is designed to be public — it is fine in this file and fine in a
-git repo. The **service_role** key is not; never put that anywhere near these
-files.
-
-### 4. Make your listener account
-
-Authentication → Users → Add user. Give it an email and a password, and tick
-"auto confirm". Copy the user's UID.
-
-Then, in the SQL editor:
-
-```sql
-insert into public.listeners (user_id, label)
-values ('PASTE-YOUR-UID-HERE', 'me');
-```
-
-Signing in without a row in `listeners` gets you nothing — the console says so
-rather than showing an empty screen.
-
-### 5. Open the console
-
-`admin.html`, sign in, flip **Available now** on when you're around. That drives
-the pill on the landing page.
+That is the whole setup. `schema.sql` is the full database in one file, kept in
+sync with what is live, in case you ever need to rebuild from scratch.
 
 ---
 
