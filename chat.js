@@ -3,8 +3,11 @@
 
    Everything here talks to Postgres functions, never to tables.
    The visitor holds a conversation id and a token; the pair is
-   the only proof of ownership and it lives in sessionStorage,
-   so it dies with the tab.
+   the only proof of ownership. On the website it lives in
+   sessionStorage, so it dies with the tab, matching the promise
+   made on the landing page. (The app build of this file swaps
+   that one line for localStorage, so closing the app doesn't
+   lose the conversation — see brina-app/www/chat.js.)
    ============================================================ */
 
 const cfg = window.BRINA_CONFIG || {};
@@ -21,11 +24,12 @@ const warning   = document.getElementById('config-warning');
 const note      = document.getElementById('composer-note');
 
 const KEY = 'brina.session';
+const STORE = sessionStorage;
 
 let session  = null;   // { conversationId, token }
-let lastId   = 0;
 let polling  = null;
 let sending  = false;
+const rendered = new Map(); // message id -> { el, readAt }
 
 /* ---- Setup ------------------------------------------------ */
 
@@ -44,18 +48,31 @@ if (!client) {
 }
 
 function start() {
-  const saved = sessionStorage.getItem(KEY);
+  const saved = STORE.getItem(KEY);
   if (saved) {
     try {
       session = JSON.parse(saved);
       endBtn.hidden = false;
     } catch (e) {
-      sessionStorage.removeItem(KEY);
+      STORE.removeItem(KEY);
     }
   }
   refreshStatus();
   setInterval(refreshStatus, 30000);
+  wireOpeners();
   if (session) poll().then(startPolling);
+}
+
+/* ---- Opener chips (fill the blank first screen) ------------ */
+
+function wireOpeners() {
+  document.querySelectorAll('.opener-chip').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      input.value = chip.dataset.text || chip.textContent.trim();
+      input.dispatchEvent(new Event('input'));
+      input.focus();
+    });
+  });
 }
 
 /* ---- Listener availability -------------------------------- */
@@ -81,26 +98,59 @@ async function refreshStatus() {
 
 /* ---- Messages --------------------------------------------- */
 
-function render(rows) {
+function tickHTML(readAt) {
+  return readAt
+    ? '<span class="tick tick-read" aria-label="Read" title="Read">' +
+        '<svg viewBox="0 0 20 12" aria-hidden="true"><path d="M1 6.5 5 10.5 12 2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 6.5 11 10.5 19 1.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+      '</span>'
+    : '<span class="tick tick-sent" aria-label="Sent" title="Sent">' +
+        '<svg viewBox="0 0 14 12" aria-hidden="true"><path d="M1 6.5 5 10.5 13 1.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+      '</span>';
+}
+
+function sync(rows) {
   if (!rows.length) return;
 
   if (intro && intro.parentNode) {
     intro.classList.add('thread-intro-done');
   }
 
+  let appended = false;
+
   for (const row of rows) {
-    const el = document.createElement('div');
-    el.className = 'bubble bubble-' + row.sender;
+    const existing = rendered.get(row.id);
 
-    const body = document.createElement('p');
-    body.textContent = row.body;
-    el.appendChild(body);
+    if (!existing) {
+      const el = document.createElement('div');
+      el.className = 'bubble bubble-' + row.sender;
+      el.dataset.mid = row.id;
 
-    thread.appendChild(el);
-    lastId = Math.max(lastId, row.id);
+      const body = document.createElement('p');
+      body.textContent = row.body;
+      el.appendChild(body);
+
+      if (row.sender === 'visitor') {
+        const meta = document.createElement('span');
+        meta.className = 'bubble-meta';
+        meta.innerHTML = tickHTML(row.read_at);
+        el.appendChild(meta);
+      }
+
+      thread.appendChild(el);
+      rendered.set(row.id, { el: el, readAt: row.read_at });
+      appended = true;
+      continue;
+    }
+
+    // Own message that has since been read — flip the tick in place.
+    if (row.sender === 'visitor' && row.read_at && !existing.readAt) {
+      const meta = existing.el.querySelector('.bubble-meta');
+      if (meta) meta.innerHTML = tickHTML(row.read_at);
+      existing.readAt = row.read_at;
+    }
   }
 
-  thread.scrollTop = thread.scrollHeight;
+  if (appended) thread.scrollTop = thread.scrollHeight;
 }
 
 async function poll() {
@@ -108,17 +158,16 @@ async function poll() {
 
   const { data, error } = await client.rpc('visitor_poll', {
     p_conversation: session.conversationId,
-    p_token: session.token,
-    p_after: lastId
+    p_token: session.token
   });
 
   if (error) {
-    // The conversation is gone — closed from the other side, or purged.
+    // The conversation is gone — closed from the other side.
     if (/not found/i.test(error.message)) endSession(true);
     return;
   }
 
-  render(data || []);
+  sync(data || []);
 }
 
 function startPolling() {
@@ -168,7 +217,7 @@ async function send() {
       if (error) throw error;
       const row = Array.isArray(data) ? data[0] : data;
       session = { conversationId: row.conversation_id, token: row.visitor_token };
-      sessionStorage.setItem(KEY, JSON.stringify(session));
+      STORE.setItem(KEY, JSON.stringify(session));
       endBtn.hidden = false;
       startPolling();
     }
@@ -218,8 +267,8 @@ function endSession(wasClosedElsewhere) {
   clearInterval(polling);
   polling = null;
   session = null;
-  lastId = 0;
-  sessionStorage.removeItem(KEY);
+  rendered.clear();
+  STORE.removeItem(KEY);
 
   thread.innerHTML = '';
   const done = document.createElement('div');

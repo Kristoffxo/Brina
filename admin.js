@@ -46,9 +46,8 @@ const client = cfg.ready ? window.supabase.createClient(cfg.url, cfg.anonKey, {
 let token   = null;
 let claimed = true;
 let open    = null;
-let lastId  = 0;
-let seen    = new Set();
 let timer   = null;
+const rendered = new Map(); // message id -> { el, readAt }
 
 /* ---- Boot ------------------------------------------------- */
 
@@ -141,7 +140,6 @@ document.addEventListener('visibilitychange', function () {
 async function enterConsole() {
   signinView.hidden = true;
   consoleView.hidden = false;
-  client.rpc('purge_stale', { p_token: token });
   loadPresence();
   await refresh();
   timer = setInterval(refresh, 3000);
@@ -247,8 +245,7 @@ async function refresh() {
 
 async function openThread(id) {
   open = id;
-  lastId = 0;
-  seen = new Set();
+  rendered.clear();
   thread.innerHTML = '';
   emptyState.hidden = true;
   threadWrap.hidden = false;
@@ -257,11 +254,20 @@ async function openThread(id) {
   reply.focus();
 }
 
+function tickHTML(readAt) {
+  return readAt
+    ? '<span class="tick tick-read" aria-label="Read" title="Read">' +
+        '<svg viewBox="0 0 20 12" aria-hidden="true"><path d="M1 6.5 5 10.5 12 2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 6.5 11 10.5 19 1.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+      '</span>'
+    : '<span class="tick tick-sent" aria-label="Sent" title="Sent">' +
+        '<svg viewBox="0 0 14 12" aria-hidden="true"><path d="M1 6.5 5 10.5 13 1.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+      '</span>';
+}
+
 async function pull() {
   const { data, error } = await client.rpc('listener_messages', {
     p_token: token,
-    p_conversation: open,
-    p_after: lastId
+    p_conversation: open
   });
 
   if (error) {
@@ -269,21 +275,43 @@ async function pull() {
     return;
   }
 
-  for (const m of (data || [])) {
-    if (seen.has(m.id)) continue;
-    seen.add(m.id);
-    lastId = Math.max(lastId, m.id);
+  const rows = data || [];
+  let appended = false;
 
-    const el = document.createElement('div');
-    el.className = 'bubble bubble-' + m.sender;
-    const p = document.createElement('p');
-    p.textContent = m.body;
-    el.appendChild(p);
-    thread.appendChild(el);
+  for (const m of rows) {
+    const existing = rendered.get(m.id);
+
+    if (!existing) {
+      const el = document.createElement('div');
+      el.className = 'bubble bubble-' + m.sender;
+      el.dataset.mid = m.id;
+
+      const p = document.createElement('p');
+      p.textContent = m.body;
+      el.appendChild(p);
+
+      if (m.sender === 'listener') {
+        const meta = document.createElement('span');
+        meta.className = 'bubble-meta';
+        meta.innerHTML = tickHTML(m.read_at);
+        el.appendChild(meta);
+      }
+
+      thread.appendChild(el);
+      rendered.set(m.id, { el: el, readAt: m.read_at });
+      appended = true;
+      continue;
+    }
+
+    if (m.sender === 'listener' && m.read_at && !existing.readAt) {
+      const meta = existing.el.querySelector('.bubble-meta');
+      if (meta) meta.innerHTML = tickHTML(m.read_at);
+      existing.readAt = m.read_at;
+    }
   }
 
-  if (data && data.length) thread.scrollTop = thread.scrollHeight;
-  openMeta.textContent = seen.size + (seen.size === 1 ? ' message' : ' messages');
+  if (appended) thread.scrollTop = thread.scrollHeight;
+  openMeta.textContent = rendered.size + (rendered.size === 1 ? ' message' : ' messages');
 }
 
 composer.addEventListener('submit', async function (e) {

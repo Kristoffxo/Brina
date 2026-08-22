@@ -167,7 +167,7 @@ main > section + section { border-top: 1px solid var(--line); }
   letter-spacing: 0.01em;
 }
 
-.wordmark-mark { width: 30px; height: 21px; color: var(--accent); flex: none; }
+.wordmark-mark { width: 21px; height: 28px; flex: none; display: block; }
 
 .header-cta {
   font-size: 0.9375rem;
@@ -650,6 +650,12 @@ main h3 {
   padding-block: var(--s4);
 }
 
+.thread-intro-mark {
+  display: block;
+  margin: 0 0 var(--s3);
+  opacity: 0.9;
+}
+
 .thread-intro h1 {
   font-family: var(--serif);
   font-weight: 400;
@@ -661,6 +667,44 @@ main h3 {
 .thread-intro p { color: var(--ink-soft); margin-bottom: var(--s2); }
 
 .thread-intro-small { font-size: 0.875rem; }
+
+.thread-intro-label {
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+  margin-top: var(--s4);
+  margin-bottom: var(--s2) !important;
+}
+
+.opener-chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+
+.opener-chip {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-family: var(--serif);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--bg-sunk);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px var(--s2);
+  cursor: pointer;
+  transition: border-color 140ms ease, background-color 140ms ease;
+}
+
+.opener-chip:hover {
+  border-color: var(--accent);
+  background: var(--bg);
+}
 
 .thread-intro-done { display: none; }
 
@@ -676,6 +720,17 @@ main h3 {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+.bubble-meta {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.tick { display: inline-flex; opacity: 0.75; }
+.tick svg { display: block; width: 15px; height: 10px; }
+.tick-sent { color: currentColor; }
+.tick-read { color: #6FA8D8; opacity: 1; }
 
 .bubble-visitor {
   align-self: flex-end;

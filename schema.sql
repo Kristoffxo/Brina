@@ -30,8 +30,13 @@ create table if not exists public.messages (
   conversation_id uuid not null references public.conversations(id) on delete cascade,
   sender          text not null check (sender in ('visitor', 'listener')),
   body            text not null check (char_length(body) between 1 and 4000),
-  created_at      timestamptz not null default now()
+  created_at      timestamptz not null default now(),
+  -- Set the moment the OTHER party polls and sees this message. Drives the
+  -- sent/read tick in both UIs. Never set by the sender themselves.
+  read_at         timestamptz
 );
+
+alter table public.messages add column if not exists read_at timestamptz;
 
 create index if not exists messages_conversation_idx
   on public.messages (conversation_id, id);
@@ -150,10 +155,16 @@ begin
 end;
 $$;
 
-create or replace function public.visitor_poll(
-  p_conversation uuid, p_token uuid, p_after bigint default 0
-)
-returns table (id bigint, sender text, body text, created_at timestamptz)
+-- Returns the whole conversation every time, not just what's new. Marking
+-- the listener's messages read happens in the same call that reads them, so
+-- there's no separate "mark as read" round trip. Conversation lists here
+-- stay small (one-on-one, personal), so re-sending the full thread every
+-- three seconds is cheap and keeps the client's reconciliation logic simple:
+-- no separate "did this message's status change" query to write.
+drop function if exists public.visitor_poll(uuid, uuid, bigint);
+
+create function public.visitor_poll(p_conversation uuid, p_token uuid)
+returns table (id bigint, sender text, body text, created_at timestamptz, read_at timestamptz)
 language plpgsql security definer set search_path = public
 as $$
 begin
@@ -168,10 +179,14 @@ begin
   set visitor_last_seen = now()
   where public.conversations.id = p_conversation;
 
+  update public.messages
+  set read_at = now()
+  where conversation_id = p_conversation and sender = 'listener' and read_at is null;
+
   return query
-    select m.id, m.sender, m.body, m.created_at
+    select m.id, m.sender, m.body, m.created_at, m.read_at
     from public.messages m
-    where m.conversation_id = p_conversation and m.id > p_after
+    where m.conversation_id = p_conversation
     order by m.id;
 end;
 $$;
@@ -313,7 +328,11 @@ begin
 end;
 $$;
 
--- Housekeeping, kept separate so the list above is a pure read.
+-- Not called by anything automatically, on purpose: the only way a
+-- conversation is deleted is the visitor or the listener choosing to delete
+-- it (visitor_close / listener_delete). This exists only as a manual tool —
+-- run it yourself from the SQL editor if you ever want to sweep out
+-- conversations abandoned for a long time. Nothing in the app calls it.
 create or replace function public.purge_stale(p_token uuid)
 returns void
 language plpgsql security definer set search_path = public
@@ -324,14 +343,17 @@ begin
   end if;
 
   delete from public.conversations
-  where public.conversations.last_message_at < now() - interval '24 hours';
+  where public.conversations.last_message_at < now() - interval '90 days';
 end;
 $$;
 
-create or replace function public.listener_messages(
-  p_token uuid, p_conversation uuid, p_after bigint default 0
-)
-returns table (id bigint, sender text, body text, created_at timestamptz)
+-- Same full-sync shape as visitor_poll, and the same reason: return the
+-- whole thread every time so read-receipt changes on already-seen messages
+-- reach the client without a second kind of request.
+drop function if exists public.listener_messages(uuid, uuid, bigint);
+
+create function public.listener_messages(p_token uuid, p_conversation uuid)
+returns table (id bigint, sender text, body text, created_at timestamptz, read_at timestamptz)
 language plpgsql security definer set search_path = public
 as $$
 begin
@@ -339,10 +361,14 @@ begin
     raise exception 'session expired';
   end if;
 
+  update public.messages
+  set read_at = now()
+  where conversation_id = p_conversation and sender = 'visitor' and read_at is null;
+
   return query
-    select m.id, m.sender, m.body, m.created_at
+    select m.id, m.sender, m.body, m.created_at, m.read_at
     from public.messages m
-    where m.conversation_id = p_conversation and m.id > p_after
+    where m.conversation_id = p_conversation
     order by m.id;
 end;
 $$;
@@ -417,7 +443,7 @@ $$;
 
 grant execute on function public.start_conversation()                         to anon;
 grant execute on function public.visitor_send(uuid, uuid, text)               to anon;
-grant execute on function public.visitor_poll(uuid, uuid, bigint)             to anon;
+grant execute on function public.visitor_poll(uuid, uuid)                     to anon;
 grant execute on function public.visitor_close(uuid, uuid)                    to anon;
 grant execute on function public.listener_status()                            to anon;
 
@@ -427,7 +453,7 @@ grant execute on function public.listener_login(text)                         to
 grant execute on function public.listener_signout(uuid)                       to anon;
 grant execute on function public.listener_conversations(uuid)                 to anon;
 grant execute on function public.purge_stale(uuid)                            to anon;
-grant execute on function public.listener_messages(uuid, uuid, bigint)        to anon;
+grant execute on function public.listener_messages(uuid, uuid)                to anon;
 grant execute on function public.listener_send(uuid, uuid, text)              to anon;
 grant execute on function public.listener_delete(uuid, uuid)                  to anon;
 grant execute on function public.listener_get_presence(uuid)                  to anon;
