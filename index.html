@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!--
+  ============================================================
+  RENAMING THE SERVICE
+  The name lives in exactly one place: the <span data-brand> in
+  the header wordmark below. Everything else that shows the name
+  (page title, footer, meta description) is filled in from it at
+  load time by script.js. Change that one span and you're done.
+  ============================================================
+-->
+
+<title>Brina — a free, anonymous place to talk</title>
+<meta name="description" content="Free, anonymous, text-only conversations for anyone who wants to talk to someone who won't judge them. Prayagraj, India. Adults only. Not therapy or crisis support.">
+<meta name="color-scheme" content="light dark">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='12' cy='16' r='7' fill='none' stroke='%237C8B7A' stroke-width='2'/%3E%3Ccircle cx='20' cy='16' r='7' fill='none' stroke='%237C8B7A' stroke-width='2'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="wordmark" href="#top">
+      <svg class="wordmark-mark" viewBox="0 0 32 22" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
+        <circle cx="20" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
+      </svg>
+      <!-- The service name. This is the single source of truth. -->
+      <span data-brand>Brina</span>
+    </a>
+
+    <!-- TODO: point this at the chat product once it exists. -->
+    <a class="header-cta" href="#">Start a conversation</a>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ── Hero ─────────────────────────────────────────────── -->
+  <section class="hero wrap" id="top">
+    <h1>Sometimes you just need to talk to someone who isn&rsquo;t going to judge you.</h1>
+    <p class="lede">Free. Anonymous. Text only. You type, a real person reads it and writes back.</p>
+    <p class="actions">
+      <!-- TODO: point this at the chat product once it exists. -->
+      <a class="btn" href="#">Start a conversation</a>
+      <a class="link-quiet" href="#how">How this works</a>
+    </p>
+    <p class="fineprint">For adults, 18 and over. Prayagraj, India.</p>
+  </section>
+
+  <!-- ── How it works ─────────────────────────────────────── -->
+  <section class="wrap" id="how" aria-labelledby="how-title">
+    <h2 id="how-title">How it works</h2>
+    <ol class="steps">
+      <li>
+        <span class="step-num" aria-hidden="true">1</span>
+        <h3>Open a chat</h3>
+        <p>No signup, no name, no phone number. You click the button and the chat is open.</p>
+      </li>
+      <li>
+        <span class="step-num" aria-hidden="true">2</span>
+        <h3>Type whatever you want</h3>
+        <p>For as long as you want. There is no time limit and no subject you have to stick to.</p>
+      </li>
+      <li>
+        <span class="step-num" aria-hidden="true">3</span>
+        <h3>Close it whenever</h3>
+        <p>Shut the tab and the conversation is over. Nothing is kept afterwards.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ── What this is / isn't ─────────────────────────────── -->
+  <section class="wrap" id="what" aria-labelledby="what-title">
+    <h2 id="what-title">What this is, and what it isn&rsquo;t</h2>
+    <div class="columns">
+      <div class="col">
+        <h3>What it is</h3>
+        <ul class="plain-list">
+          <li>A person who reads what you write and answers.</li>
+          <li>Free, with nothing to pay for later.</li>
+          <li>No judgement about what you bring up.</li>
+          <li>No advice unless you ask for it.</li>
+          <li>Anonymous &mdash; no account, no name, no number.</li>
+        </ul>
+      </div>
+      <div class="col">
+        <h3>What it isn&rsquo;t</h3>
+        <ul class="plain-list">
+          <li>Therapy or counselling.</li>
+          <li>Medical or crisis support.</li>
+          <li>A diagnosis, or an opinion on medication.</li>
+          <li>Run by anyone with clinical training.</li>
+          <li>Open 24&times;7 &mdash; not yet.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Crisis ───────────────────────────────────────────── -->
+  <section class="wrap" id="crisis" aria-labelledby="crisis-title">
+    <div class="crisis-block">
+      <h2 id="crisis-title">If you&rsquo;re in crisis</h2>
+      <p>If you are thinking about ending your life, or you are in danger right now, please talk to people who are trained for it. They answer at any hour and the calls are free.</p>
+      <ul class="helplines">
+        <li>
+          <span class="helpline-name">Tele-MANAS <span class="helpline-note">Government of India &middot; free &middot; 24&times;7</span></span>
+          <span class="helpline-numbers">
+            <a href="tel:14416">14416</a>
+            <span aria-hidden="true">/</span>
+            <a href="tel:18008914416">1-800-891-4416</a>
+          </span>
+        </li>
+        <li>
+          <span class="helpline-name">Vandrevala Foundation <span class="helpline-note">24&times;7</span></span>
+          <span class="helpline-numbers"><a href="tel:+919999666555">9999 666 555</a></span>
+        </li>
+        <li>
+          <span class="helpline-name">AASRA <span class="helpline-note">24&times;7</span></span>
+          <span class="helpline-numbers"><a href="tel:+919820466726">98204 66726</a></span>
+        </li>
+      </ul>
+      <p class="crisis-foot">This page is not a substitute for any of them.</p>
+    </div>
+  </section>
+
+  <!-- ── Volunteer ────────────────────────────────────────── -->
+  <section class="wrap" id="volunteer" aria-labelledby="volunteer-title">
+    <h2 id="volunteer-title">Listening, as a volunteer</h2>
+    <p class="measure">We are training a small group of listeners in Prayagraj. The training happens in person, over a few sessions. You need to verify your identity with a government ID, and you have to be 18 or over.</p>
+    <!-- TODO: replace with the real address before publishing. -->
+    <p class="actions"><a class="btn btn-quiet" href="mailto:hello@brina.in?subject=Volunteering">Write to us about volunteering</a></p>
+  </section>
+
+  <!-- ── FAQ ──────────────────────────────────────────────── -->
+  <section class="wrap" id="faq" aria-labelledby="faq-title">
+    <h2 id="faq-title">Questions</h2>
+    <div class="faq">
+
+      <details>
+        <summary>Is it really free?</summary>
+        <p>Yes. There is no fee, no subscription, and no paid version waiting behind this one.</p>
+      </details>
+
+      <details>
+        <summary>Who am I talking to?</summary>
+        <p>Right now, one person &mdash; the person who started this, based in Prayagraj. Trained volunteers will join later, and this page will say so when they do.</p>
+      </details>
+
+      <details>
+        <summary>Is it anonymous?</summary>
+        <p>Yes. You don&rsquo;t give a name, an email, or a phone number, and you are never asked who you are.</p>
+      </details>
+
+      <details>
+        <summary>Are chats saved?</summary>
+        <p>No. The conversation ends when you close it and no transcript is kept &mdash; though, like anything you type online, it does travel over the internet to reach the other person.</p>
+      </details>
+
+      <details>
+        <summary>Can I talk about anything?</summary>
+        <p>Mostly, yes &mdash; work, family, a breakup, a bad week, or nothing in particular. If you say you are thinking about ending your life, the answer will be to point you to a trained helpline, because that is the right help and this isn&rsquo;t it.</p>
+      </details>
+
+      <details>
+        <summary>Are you a therapist?</summary>
+        <p>No. There is no clinical training, licence, or medical supervision behind this, and nothing said here is treatment or advice about your health.</p>
+      </details>
+
+      <details>
+        <summary>Do I have to be 18?</summary>
+        <p>Yes, this is for adults only. If you tell us you are under 18 the conversation will be stopped and you&rsquo;ll be pointed to services meant for young people.</p>
+      </details>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- ── Persistent crisis bar ──────────────────────────────── -->
+<div class="crisis-bar" id="crisis-bar" role="complementary" aria-label="Crisis helpline">
+  <p class="crisis-bar-text">In crisis? Call <a href="tel:14416">14416</a> &mdash; free, 24&times;7.</p>
+  <button type="button" class="crisis-bar-close" id="crisis-bar-close">
+    <span class="visually-hidden">Dismiss crisis helpline bar</span>
+    <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M3 3 L13 13 M13 3 L3 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+    </svg>
+  </button>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p class="measure"><span data-brand>Brina</span> is an independent project run from Prayagraj, Uttar Pradesh, by one person. It is not a clinic, an NGO, or a registered medical service.</p>
+    <!-- TODO: replace with the real address before publishing. -->
+    <p><a href="mailto:hello@brina.in">hello@brina.in</a></p>
+    <p class="footer-helplines">
+      Crisis helplines &mdash;
+      Tele-MANAS <a href="tel:14416">14416</a> / <a href="tel:18008914416">1-800-891-4416</a> &middot;
+      Vandrevala <a href="tel:+919999666555">9999 666 555</a> &middot;
+      AASRA <a href="tel:+919820466726">98204 66726</a>
+    </p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
