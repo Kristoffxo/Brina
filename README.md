@@ -12,31 +12,22 @@ style.css     everything, both themes
 script.js     landing page only
 config.js     the two values you fill in
 schema.sql    the whole database, for a rebuild from scratch
-fix.sql       the remaining piece to run once
 ```
 
 ---
 
 ## Setup
 
-The database is already set up on your project
-(`yelznjutyfzgfqroqgrk`), and `config.js` already has your URL and
-publishable key. Two things left:
+Already done. The database is live on project `yelznjutyfzgfqroqgrk`, and
+`config.js` holds the URL and publishable key.
 
-### 1. Run `fix.sql`
+The only thing left, once: open `admin.html` and choose a passphrase. The first
+person to open the console sets it, so do it before the site is public. Ten
+characters minimum, and write it down — there is no reset. (If you ever need to
+reset it, run this and reload the page:
+`update public.listener_auth set passphrase_hash = null, claimed_at = null where id = true;`)
 
-Supabase → SQL Editor → New query → paste all of `fix.sql` → Run. It will warn
-about destructive operations; that is the cleanup of the test rows at the
-bottom. Confirm it.
-
-### 2. Open `admin.html` and choose a passphrase
-
-There is no account and no email. The first person to open the console picks a
-passphrase and that becomes the lock — so do this before the site is public.
-Ten characters minimum. Write it down; there is no reset.
-
-That is the whole setup. `schema.sql` is the full database in one file, kept in
-sync with what is live, in case you ever need to rebuild from scratch.
+`schema.sql` is the whole database in one file, if you ever rebuild from scratch.
 
 ---
 

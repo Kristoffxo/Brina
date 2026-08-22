@@ -281,7 +281,11 @@ $$;
 -- named differently from the table's own columns: inside plpgsql the
 -- RETURNS TABLE names are variables, and a name shared with a column
 -- is ambiguous the moment anything references it unqualified.
-create or replace function public.listener_conversations(p_token uuid)
+-- Renaming the output columns needs a drop first: Postgres will not
+-- let create-or-replace change a function's return type.
+drop function if exists public.listener_conversations(uuid);
+
+create function public.listener_conversations(p_token uuid)
 returns table (
   conv_id uuid, started_at timestamptz, last_at timestamptz,
   visitor_here boolean, message_count bigint, waiting boolean
