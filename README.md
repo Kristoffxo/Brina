@@ -118,9 +118,13 @@ no-JavaScript case — a find-and-replace on `Brina` catches everything.
 - Every colour is a custom property on `:root`, overridden once for dark mode.
   The sage accent has two variants: `--accent` decorative, `--accent-ink` for
   anything carrying text, so contrast clears WCAG AA.
-- Fraunces for headings, Inter for body, both from Google Fonts. The landing
-  page loads no other third-party asset. `chat.html` and `admin.html` load the
-  Supabase client from esm.sh — unavoidable, and worth knowing.
+- Fraunces for headings, Inter for body, both from Google Fonts. No page loads
+  any other third-party script — `chat.html` and `admin.html` use the Supabase
+  client vendored at `vendor/supabase.js`, not a CDN. (An earlier version
+  loaded it live from esm.sh; that meant a slow or blocked connection to a
+  third party — far more likely on a phone than a desktop browser — made
+  messaging fail silently, with no error shown. Vendoring removes that
+  dependency entirely.)
 - The FAQ is native `<details>`. It works with JavaScript off.
 - Skip link, real focus rings, `prefers-reduced-motion` honoured.
 
