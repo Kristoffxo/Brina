@@ -7,8 +7,6 @@
    so it dies with the tab.
    ============================================================ */
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
-
 const cfg = window.BRINA_CONFIG || {};
 
 const thread    = document.getElementById('thread');
@@ -31,11 +29,11 @@ let sending  = false;
 
 /* ---- Setup ------------------------------------------------ */
 
-const supabase = cfg.ready
-  ? createClient(cfg.url, cfg.anonKey, { auth: { persistSession: false } })
+const client = cfg.ready
+  ? window.supabase.createClient(cfg.url, cfg.anonKey, { auth: { persistSession: false } })
   : null;
 
-if (!supabase) {
+if (!client) {
   warning.hidden = false;
   input.disabled = true;
   sendBtn.disabled = true;
@@ -63,7 +61,7 @@ function start() {
 /* ---- Listener availability -------------------------------- */
 
 async function refreshStatus() {
-  const { data, error } = await supabase.rpc('listener_status');
+  const { data, error } = await client.rpc('listener_status');
   const row = Array.isArray(data) ? data[0] : data;
 
   if (error || !row) {
@@ -108,7 +106,7 @@ function render(rows) {
 async function poll() {
   if (!session) return;
 
-  const { data, error } = await supabase.rpc('visitor_poll', {
+  const { data, error } = await client.rpc('visitor_poll', {
     p_conversation: session.conversationId,
     p_token: session.token,
     p_after: lastId
@@ -159,14 +157,14 @@ input.addEventListener('input', function () {
 
 async function send() {
   const body = input.value.trim();
-  if (!body || sending || !supabase) return;
+  if (!body || sending || !client) return;
 
   sending = true;
   sendBtn.disabled = true;
 
   try {
     if (!session) {
-      const { data, error } = await supabase.rpc('start_conversation');
+      const { data, error } = await client.rpc('start_conversation');
       if (error) throw error;
       const row = Array.isArray(data) ? data[0] : data;
       session = { conversationId: row.conversation_id, token: row.visitor_token };
@@ -175,7 +173,7 @@ async function send() {
       startPolling();
     }
 
-    const { error: sendError } = await supabase.rpc('visitor_send', {
+    const { error: sendError } = await client.rpc('visitor_send', {
       p_conversation: session.conversationId,
       p_token: session.token,
       p_body: body
@@ -208,7 +206,7 @@ endBtn.addEventListener('click', async function () {
   if (!session) return;
   if (!confirm('End the conversation and delete it? This cannot be undone.')) return;
 
-  await supabase.rpc('visitor_close', {
+  await client.rpc('visitor_close', {
     p_conversation: session.conversationId,
     p_token: session.token
   });

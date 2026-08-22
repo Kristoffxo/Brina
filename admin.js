@@ -9,8 +9,6 @@
    directly — every call is a function that checks the token.
    ============================================================ */
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
-
 const cfg = window.BRINA_CONFIG || {};
 
 const signinView  = document.getElementById('signin');
@@ -41,7 +39,7 @@ const noteInput   = document.getElementById('availability-note');
 
 const KEY = 'brina.listener';
 
-const supabase = cfg.ready ? createClient(cfg.url, cfg.anonKey, {
+const client = cfg.ready ? window.supabase.createClient(cfg.url, cfg.anonKey, {
   auth: { persistSession: false }
 }) : null;
 
@@ -54,7 +52,7 @@ let timer   = null;
 
 /* ---- Boot ------------------------------------------------- */
 
-if (!supabase) {
+if (!client) {
   signinView.hidden = false;
   warning.hidden = false;
   signinBtn.disabled = true;
@@ -67,13 +65,13 @@ async function boot() {
 
   if (saved) {
     token = saved;
-    const { data } = await supabase.rpc('listener_conversations', { p_token: token });
+    const { data } = await client.rpc('listener_conversations', { p_token: token });
     if (data) { enterConsole(); return; }
     localStorage.removeItem(KEY);
     token = null;
   }
 
-  const { data: isClaimed, error } = await supabase.rpc('listener_claimed');
+  const { data: isClaimed, error } = await client.rpc('listener_claimed');
 
   if (error) {
     signinView.hidden = false;
@@ -113,7 +111,7 @@ signinForm.addEventListener('submit', async function (e) {
     return;
   }
 
-  const { data, error } = await supabase.rpc(
+  const { data, error } = await client.rpc(
     claimed ? 'listener_login' : 'listener_claim',
     { p_passphrase: phrase }
   );
@@ -143,7 +141,7 @@ document.addEventListener('visibilitychange', function () {
 async function enterConsole() {
   signinView.hidden = true;
   consoleView.hidden = false;
-  supabase.rpc('purge_stale', { p_token: token });
+  client.rpc('purge_stale', { p_token: token });
   loadPresence();
   await refresh();
   timer = setInterval(refresh, 3000);
@@ -156,14 +154,14 @@ function signedOut() {
 }
 
 document.getElementById('signout-btn').addEventListener('click', async function () {
-  await supabase.rpc('listener_signout', { p_token: token });
+  await client.rpc('listener_signout', { p_token: token });
   signedOut();
 });
 
 /* ---- Availability ----------------------------------------- */
 
 async function loadPresence() {
-  const { data } = await supabase.rpc('listener_get_presence', { p_token: token });
+  const { data } = await client.rpc('listener_get_presence', { p_token: token });
   const row = Array.isArray(data) ? data[0] : data;
   if (!row) return;
   toggle.checked = row.is_available;
@@ -177,7 +175,7 @@ function paintToggle() {
 
 async function savePresence() {
   paintToggle();
-  await supabase.rpc('listener_set_presence', {
+  await client.rpc('listener_set_presence', {
     p_token: token,
     p_available: toggle.checked,
     p_note: noteInput.value.trim() || null
@@ -198,7 +196,7 @@ function ago(iso) {
 }
 
 async function refresh() {
-  const { data, error } = await supabase.rpc('listener_conversations', { p_token: token });
+  const { data, error } = await client.rpc('listener_conversations', { p_token: token });
 
   if (error) {
     if (/session expired/i.test(error.message || '')) signedOut();
@@ -260,7 +258,7 @@ async function openThread(id) {
 }
 
 async function pull() {
-  const { data, error } = await supabase.rpc('listener_messages', {
+  const { data, error } = await client.rpc('listener_messages', {
     p_token: token,
     p_conversation: open,
     p_after: lastId
@@ -308,7 +306,7 @@ async function send() {
 
   replyBtn.disabled = true;
 
-  const { error } = await supabase.rpc('listener_send', {
+  const { error } = await client.rpc('listener_send', {
     p_token: token,
     p_conversation: open,
     p_body: body
@@ -330,7 +328,7 @@ deleteBtn.addEventListener('click', async function () {
   if (!open) return;
   if (!confirm('Delete this conversation for good? The other person loses it too.')) return;
 
-  await supabase.rpc('listener_delete', { p_token: token, p_conversation: open });
+  await client.rpc('listener_delete', { p_token: token, p_conversation: open });
   closeThread('Deleted.');
   await refresh();
 });
