@@ -42,8 +42,7 @@
       <span data-brand>Brina</span>
     </a>
 
-    <!-- TODO: point this at the chat product once it exists. -->
-    <a class="header-cta" href="#">Start a conversation</a>
+    <a class="header-cta" href="chat.html">Start a conversation</a>
   </div>
 </header>
 
@@ -53,10 +52,16 @@
   <section class="hero wrap" id="top">
     <h1>Sometimes you just need to talk to someone who isn&rsquo;t going to judge you.</h1>
     <p class="lede">Free. Anonymous. Text only. You type, a real person reads it and writes back.</p>
+    <p class="lede-2">You don&rsquo;t have to explain yourself, and you don&rsquo;t have to be in a bad way to come here.</p>
     <p class="actions">
-      <!-- TODO: point this at the chat product once it exists. -->
-      <a class="btn" href="#">Start a conversation</a>
+      <a class="btn" href="chat.html">Start a conversation</a>
       <a class="link-quiet" href="#how">How this works</a>
+    </p>
+    <p class="hero-status">
+      <span class="pill" id="status-pill" data-state="unknown">
+        <span class="pill-dot" aria-hidden="true"></span>
+        <span id="status-text">Checking who&rsquo;s around&hellip;</span>
+      </span>
     </p>
     <p class="fineprint">For adults, 18 and over. Prayagraj, India.</p>
   </section>
@@ -78,9 +83,24 @@
       <li>
         <span class="step-num" aria-hidden="true">3</span>
         <h3>Close it whenever</h3>
-        <p>Shut the tab and the conversation is over. Nothing is kept afterwards.</p>
+        <p>Shut the tab, or press <em>end and delete</em>, and the whole conversation is erased. Not archived &mdash; deleted.</p>
       </li>
     </ol>
+  </section>
+
+  <!-- ── Openers ──────────────────────────────────────────── -->
+  <section class="wrap" id="openers" aria-labelledby="openers-title">
+    <h2 id="openers-title">You don&rsquo;t need a reason</h2>
+    <p class="measure">Most people freeze at the first message. If that&rsquo;s you, borrow one of
+       these and go from there.</p>
+    <ul class="openers">
+      <li>Today was long and I don&rsquo;t really know why.</li>
+      <li>I moved here for work and I haven&rsquo;t spoken to anyone all week.</li>
+      <li>I keep replaying something I said and I can&rsquo;t put it down.</li>
+      <li>Nothing happened. I just don&rsquo;t want to sit alone right now.</li>
+    </ul>
+    <p class="openers-note">Hindi, English, or a mix of both &mdash; whichever comes easier.
+       There is no right way to write here.</p>
   </section>
 
   <!-- ── What this is / isn't ─────────────────────────────── -->
@@ -167,12 +187,17 @@
 
       <details>
         <summary>Are chats saved?</summary>
-        <p>No. The conversation ends when you close it and no transcript is kept &mdash; though, like anything you type online, it does travel over the internet to reach the other person.</p>
+        <p>Only while it is open. Your messages sit on a server so they can reach the other person, and they are deleted the moment either of you ends the conversation &mdash; anything left idle is deleted within a day, automatically.</p>
       </details>
 
       <details>
         <summary>Can I talk about anything?</summary>
         <p>Mostly, yes &mdash; work, family, a breakup, a bad week, or nothing in particular. If you say you are thinking about ending your life, the answer will be to point you to a trained helpline, because that is the right help and this isn&rsquo;t it.</p>
+      </details>
+
+      <details>
+        <summary>What if nobody is there when I write?</summary>
+        <p>The pill near the top of the page says whether anyone is around, and you can write either way. Your message waits, and gets read and answered when someone is back.</p>
       </details>
 
       <details>
@@ -215,6 +240,7 @@
   </div>
 </footer>
 
+<script src="config.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

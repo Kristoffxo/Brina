@@ -1,74 +1,159 @@
-# Brina — landing page
+# Brina
 
-A single static page. Three files, no framework, no build step, no dependencies
-beyond Google Fonts.
+A free, anonymous, text-only place to talk. Landing page, visitor chat, and a
+listener console. Static files plus a Supabase backend — no server to run, no
+build step.
 
 ```
-index.html
-style.css
-script.js
+index.html    landing page
+chat.html     the visitor's chat            → chat.js
+admin.html    the listener's console        → admin.js
+style.css     everything, both themes
+script.js     landing page only
+config.js     the two values you fill in
+schema.sql    paste into Supabase once
 ```
 
-## Run it locally
+---
 
-Open `index.html` in a browser. That's it. Or, if you'd rather serve it:
+## Setup, start to finish
 
-```bash
-python3 -m http.server 8000
+### 1. Make the Supabase project
+
+supabase.com → New project. Pick the region closest to you (Mumbai / ap-south-1
+if you are in India — it makes replies feel instant).
+
+### 2. Run the schema
+
+SQL Editor → New query → paste the whole of `schema.sql` → Run. It creates the
+tables, the row-level-security policies, and the functions the chat runs on.
+
+### 3. Fill in `config.js`
+
+Project Settings → API. Copy **Project URL** and the **anon / public** key into
+`config.js`.
+
+The anon key is designed to be public — it is fine in this file and fine in a
+git repo. The **service_role** key is not; never put that anywhere near these
+files.
+
+### 4. Make your listener account
+
+Authentication → Users → Add user. Give it an email and a password, and tick
+"auto confirm". Copy the user's UID.
+
+Then, in the SQL editor:
+
+```sql
+insert into public.listeners (user_id, label)
+values ('PASTE-YOUR-UID-HERE', 'me');
 ```
 
-Then visit http://localhost:8000
+Signing in without a row in `listeners` gets you nothing — the console says so
+rather than showing an empty screen.
+
+### 5. Open the console
+
+`admin.html`, sign in, flip **Available now** on when you're around. That drives
+the pill on the landing page.
+
+---
+
+## How it works
+
+**The visitor never touches a table.** Anonymous access to `conversations` and
+`messages` is revoked outright. Everything the visitor does goes through four
+Postgres functions — `start_conversation`, `visitor_send`, `visitor_poll`,
+`visitor_close` — each of which checks a token before doing anything.
+
+**The token is the whole identity.** Starting a chat mints a conversation id and
+a random token. The pair lives in `sessionStorage`, so it dies with the tab.
+There is no account, no cookie, nothing to link two conversations to one person,
+and no way to recover a conversation once the tab is gone.
+
+**Deletion is real.** "End and delete" runs a `DELETE`, and the messages go with
+it via cascade. You deleting from the console does the same. Anything idle for
+24 hours is purged by `purge_stale_conversations()`, which the console calls on
+load. To make that reliable rather than incidental, schedule it — Database →
+Extensions → enable `pg_cron`, then:
+
+```sql
+select cron.schedule('brina-purge', '0 * * * *',
+  $$select public.purge_stale_conversations()$$);
+```
+
+**Both sides poll every 3 seconds.** Not websockets. At one listener and a
+handful of conversations this is simpler, cheaper, and impossible to get subtly
+wrong. Revisit it when you have several listeners at once, not before.
+
+### About that "nothing is kept" promise
+
+The original copy said nothing is kept, full stop. That was true of a page with
+no backend and false the moment messages had to travel between two people. The
+FAQ now says the accurate thing: messages sit on a server while the conversation
+is open, and are deleted when it ends or within a day if abandoned. Keep it
+accurate. It is the one claim you cannot afford to be loose about.
+
+---
 
 ## Deploy
 
-**Netlify** — go to https://app.netlify.com/drop and drag this folder onto the page.
+Netlify Drop, Vercel, or Cloudflare Pages — drag the folder in. No build
+command, no environment variables, output directory `/`.
 
-**Vercel** — `npx vercel` inside this folder, or drag the folder into the dashboard's
-"Add New → Project → Deploy" upload box.
+`admin.html` ships with `noindex, nofollow` and is not linked from anywhere.
+That is obscurity, not security; the security is the `listeners` table and RLS.
+If you want a second lock, put the console behind your host's password
+protection (Netlify and Cloudflare both offer it on paid plans).
 
-**Cloudflare Pages** — Workers & Pages → Create → Pages → "Upload assets", drag the folder.
-
-No environment variables, no build command, no output directory. If a build command is
-asked for, leave it blank and set the output directory to `/`.
-
-## Changing the name
-
-The service name lives in **one place**: the `<span data-brand>` inside the header
-wordmark in `index.html`. `script.js` copies it into the footer, the page title and the
-meta description at load time.
-
-The footer and `<title>` still carry `Brina` as a literal fallback for the case where
-JavaScript doesn't run. If you rename, it's worth updating those two fallbacks too — they
-are both marked, and a find-and-replace on `Brina` covers everything.
+---
 
 ## Before you publish
 
-Three placeholders are marked with `TODO` comments in `index.html`:
+- `hello@brina.in` in `index.html` — volunteer section and footer. Replace it.
+- Check the helpline numbers are still current.
+- Decide your hours and put them in the availability note, e.g. "back around
+  9pm". A specific note reads far better than a grey dot.
 
-1. **The chat link.** Both "Start a conversation" buttons point at `#`. Point them at the
-   chat product when it exists.
-2. **The email address.** `hello@brina.in` appears in the volunteer section and the
-   footer. Replace it with the real one.
-3. Nothing else. There is no form backend, no analytics, no tracking, no third-party
-   script.
+---
 
-## Notes on how it's built
+## On charging
 
-- **Colour** — every colour is a custom property on `:root`, overridden in a single
-  `prefers-color-scheme: dark` block. The sage accent has two variants: `--accent` for
-  decorative marks and `--accent-ink`, darker, for anything carrying text, so button and
-  link contrast clears WCAG AA.
-- **Type** — Fraunces for headings, Inter for body, both from Google Fonts. Body line
-  height 1.7, text columns capped at 65ch.
-- **Spacing** — an 8px scale, `--s1` through `--s8`.
-- **The crisis bar** is `position: fixed` at the bottom below 700px and sits in the flow
-  just above the footer above it. Dismissal is held in a JS variable only, so it returns
-  on the next page load. That is deliberate.
-- **The FAQ** uses native `<details>`/`<summary>`. It works with JavaScript disabled.
-- **Accessibility** — skip link, real focus rings, semantic landmarks, and
-  `prefers-reduced-motion` honoured.
+There is no payment code here, deliberately. If you ever do add credits:
+
+- A ₹1 charge costs more in gateway fees than it collects. Any per-conversation
+  price that clears the fees is high enough to change who shows up.
+- Payment means a payment identity, which is the end of anonymity as a claim.
+- The way to control load is the availability toggle and, later, a queue — not
+  a price.
+
+If you still want it: add a `credits` table keyed by a purchased token, check
+the balance inside `visitor_send`, and decrement on the first message of a
+conversation. The function boundary is already the right place for it, which is
+part of why the schema is shaped this way.
+
+---
+
+## Changing the name
+
+One place: the `<span data-brand>` in the header of `index.html`. `script.js`
+copies it into the footer, the title, and the meta description at load. The
+literal fallbacks in `<title>`, `chat.html`, and `admin.html` are there for the
+no-JavaScript case — a find-and-replace on `Brina` catches everything.
+
+## Notes on the build
+
+- Every colour is a custom property on `:root`, overridden once for dark mode.
+  The sage accent has two variants: `--accent` decorative, `--accent-ink` for
+  anything carrying text, so contrast clears WCAG AA.
+- Fraunces for headings, Inter for body, both from Google Fonts. The landing
+  page loads no other third-party asset. `chat.html` and `admin.html` load the
+  Supabase client from esm.sh — unavoidable, and worth knowing.
+- The FAQ is native `<details>`. It works with JavaScript off.
+- Skip link, real focus rings, `prefers-reduced-motion` honoured.
 
 ## What the page deliberately does not do
 
-No testimonials, no user counts, no statistics, no trust badges, and no claim of
-professional qualification. It is a new service run by one person and the page says so.
+No testimonials, no user counts, no statistics, no trust badges, no claim of
+professional qualification. The example openers in "You don't need a reason" are
+written as prompts, not quotes from anyone — keep them that way.

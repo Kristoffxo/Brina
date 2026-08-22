@@ -51,3 +51,59 @@
     });
   }
 }());
+
+/* ============================================================
+   Availability pill.
+   A single unauthenticated call to the listener_status function.
+   Deliberately no Supabase library on this page — one POST does
+   it, and the landing page stays free of third-party scripts.
+   ============================================================ */
+
+(function () {
+  'use strict';
+
+  var cfg  = window.BRINA_CONFIG || {};
+  var pill = document.getElementById('status-pill');
+  var text = document.getElementById('status-text');
+
+  if (!pill || !text) return;
+
+  if (!cfg.ready) {
+    pill.hidden = true;
+    return;
+  }
+
+  function paint(state, label) {
+    pill.dataset.state = state;
+    text.textContent = label;
+  }
+
+  function check() {
+    fetch(cfg.url + '/rest/v1/rpc/listener_status', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': cfg.anonKey,
+        'Authorization': 'Bearer ' + cfg.anonKey
+      },
+      body: '{}'
+    })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (rows) {
+        var row = Array.isArray(rows) ? rows[0] : rows;
+        if (!row) return paint('unknown', 'Write any time');
+
+        if (row.is_available) {
+          paint('on', row.note || 'Someone is here right now');
+        } else {
+          paint('off', row.note || 'Nobody is here right now — your message still gets read');
+        }
+      })
+      .catch(function () {
+        paint('unknown', 'Write any time — it gets read');
+      });
+  }
+
+  check();
+  setInterval(check, 60000);
+}());
