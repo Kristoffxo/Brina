@@ -179,9 +179,13 @@ begin
   set visitor_last_seen = now()
   where public.conversations.id = p_conversation;
 
+  -- Fully qualified: RETURNS TABLE declares output columns named sender and
+  -- read_at, which shadow the table's own columns inside plpgsql.
   update public.messages
   set read_at = now()
-  where conversation_id = p_conversation and sender = 'listener' and read_at is null;
+  where public.messages.conversation_id = p_conversation
+    and public.messages.sender = 'listener'
+    and public.messages.read_at is null;
 
   return query
     select m.id, m.sender, m.body, m.created_at, m.read_at
@@ -361,9 +365,12 @@ begin
     raise exception 'session expired';
   end if;
 
+  -- Fully qualified for the same reason as visitor_poll.
   update public.messages
   set read_at = now()
-  where conversation_id = p_conversation and sender = 'visitor' and read_at is null;
+  where public.messages.conversation_id = p_conversation
+    and public.messages.sender = 'visitor'
+    and public.messages.read_at is null;
 
   return query
     select m.id, m.sender, m.body, m.created_at, m.read_at
