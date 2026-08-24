@@ -96,6 +96,78 @@ async function refreshStatus() {
   }
 }
 
+/* ---- Crisis safety net -------------------------------------
+   If a message contains language that plainly signals danger to the
+   person's own life, an automatic reply with real helplines appears in
+   the thread immediately — before the listener could possibly see and
+   answer it. The conversation is never closed or interrupted; the
+   visitor's message still sends and a human still sees it. This is a
+   floor, not a replacement for the listener actually responding.
+   ------------------------------------------------------------ */
+
+const CRISIS_PATTERNS = [
+  // Bare keywords. Deliberately broad, including common misspellings —
+  // someone in distress types fast and does not proofread. A false
+  // positive costs a helpline card nobody needed; a false negative costs
+  // far more, and the card never blocks or ends the conversation.
+  /\bsu[ei]*[cs][ei]*d(e|al|es)?\b/i,
+  /\bkms\b/i,
+  /\bself\s*-?\s*harm/i,
+
+  // Phrases in English.
+  /\bi\s*(just\s*)?can'?t\s*(take|do|handle)\s*(it|this)\s*(any\s*more|anymore)\b/i,
+  /\bi\s*(want|wanna|wish)\s*(to\s*)?di(e|ing)\b/i,
+  /\bi\s*(want|wanna)\s*to\s*(commit\s*)?su+[ei]c+[ei]?d/i,
+  /\b(i'?m|im|i\s*am)\s*(going\s*to|gonna)\s*(kill|end)\s*(myself|my\s*life)\b/i,
+  /\b(kill|hurt|harm)\s*(myself|meself)\b/i,
+  /\bend\s*(my|it)\s*(life|all)\b/i,
+  /\bi\s*don'?t\s*want\s*to\s*(live|be\s*alive|exist|wake\s*up)\b/i,
+  /\bno\s*(reason|point)\s*(to|in)\s*liv/i,
+  /\bbetter\s*off\s*(dead|without\s*me)\b/i,
+  /\bnobody\s*would\s*(miss|notice)\s*me\b/i,
+  /\bi\s*want\s*(it|everything)\s*to\s*(end|stop)\b/i,
+
+  // Transliterated Hindi.
+  /\bmar\s*na\s*chah/i,
+  /\bmarna\s*chaht/i,
+  /\bjeena\s*nahi/i,
+  /\bjine\s*ka\s*mann?\s*nahi/i,
+  /\bkhatam\s*kar(na)?\s*chaht/i,
+  /\bapne\s*aap\s*ko\s*(maar|marna)/i
+];
+
+let crisisShownAt = 0;
+
+function looksLikeCrisis(text) {
+  return CRISIS_PATTERNS.some(function (re) { return re.test(text); });
+}
+
+function showCrisisResponse() {
+  // Don't repeat it on every single message once it's already showing —
+  // once per five minutes of continued crisis language is enough to stay
+  // present without turning into noise on top of what they're saying.
+  if (Date.now() - crisisShownAt < 5 * 60 * 1000) return;
+  crisisShownAt = Date.now();
+
+  if (intro && intro.parentNode) intro.classList.add('thread-intro-done');
+
+  const el = document.createElement('div');
+  el.className = 'bubble bubble-safety';
+
+  el.innerHTML =
+    '<p class="bubble-safety-lead">Please reach out to people trained for this right now &mdash; ' +
+    'they answer any hour, and the calls are free.</p>' +
+    '<ul class="bubble-safety-list">' +
+      '<li><span>Tele-MANAS</span> <a href="tel:14416">14416</a></li>' +
+      '<li><span>Vandrevala Foundation</span> <a href="tel:+919999666555">9999 666 555</a></li>' +
+      '<li><span>AASRA</span> <a href="tel:+919820466726">98204 66726</a></li>' +
+    '</ul>' +
+    '<p class="bubble-safety-foot">This chat is staying open. Keep writing if you want to &mdash; someone here will read it too.</p>';
+
+  thread.appendChild(el);
+  thread.scrollTop = thread.scrollHeight;
+}
+
 /* ---- Messages --------------------------------------------- */
 
 function tickHTML(readAt) {
@@ -208,6 +280,8 @@ async function send() {
   const body = input.value.trim();
   if (!body || sending || !client) return;
 
+  const flagCrisis = looksLikeCrisis(body);
+
   sending = true;
   sendBtn.disabled = true;
 
@@ -233,6 +307,7 @@ async function send() {
     input.value = '';
     input.style.height = 'auto';
     await poll();
+    if (flagCrisis) showCrisisResponse();
   } catch (err) {
     note.textContent = /slow down/i.test(err.message || '')
       ? 'That is a lot of messages very quickly. Give it a moment.'

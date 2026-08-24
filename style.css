@@ -47,7 +47,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg:          #1A1817;
     --bg-sunk:     #221F1D;
     --ink:         #EDE8E2;
@@ -68,6 +68,28 @@
   }
 }
 
+/* An explicit choice from the toggle wins over system preference,
+   in both directions. */
+:root[data-theme="dark"] {
+  --bg:          #1A1817;
+  --bg-sunk:     #221F1D;
+  --ink:         #EDE8E2;
+  --ink-soft:    #B4ABA1;
+  --line:        #35312D;
+
+  --accent:      #A9BBA5;
+  --accent-ink:  #A9BBA5;
+  --accent-on:   #1A1817;
+
+  --crisis-bg:   #241D19;
+  --crisis-line: #C98E6F;
+
+  --bar-bg:      #EDE8E2;
+  --bar-ink:     #1A1817;
+
+  --focus:       #A9BBA5;
+}
+
 /* ── Reset-ish ─────────────────────────────────────────────── */
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -82,7 +104,7 @@ body {
   font-size: 17px;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
-  padding-bottom: 72px; /* room for the fixed crisis bar on mobile */
+  padding-bottom: calc(72px + env(safe-area-inset-bottom)); /* fixed crisis bar + home indicator */
 }
 
 body.bar-dismissed { padding-bottom: 0; }
@@ -147,13 +169,22 @@ main > section + section { border-top: 1px solid var(--line); }
 
 /* ── Header ────────────────────────────────────────────────── */
 
-.site-header { padding-block: var(--s3); }
+.site-header {
+  padding-top: calc(var(--s3) + env(safe-area-inset-top));
+  padding-bottom: var(--s3);
+}
 
 .header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--s2);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
 }
 
 .wordmark {
@@ -178,6 +209,32 @@ main > section + section { border-top: 1px solid var(--line); }
   transition: color 140ms ease, border-color 140ms ease;
 }
 .header-cta:hover { color: var(--ink); border-color: var(--accent); }
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  flex: none;
+}
+.theme-toggle:hover { color: var(--ink); border-color: var(--accent); }
+.theme-toggle svg { width: 17px; height: 17px; }
+.theme-toggle .icon-moon { display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .icon-sun { display: none; }
+  :root:not([data-theme="light"]) .theme-toggle .icon-moon { display: block; }
+}
+:root[data-theme="light"] .theme-toggle .icon-sun { display: block; }
+:root[data-theme="light"] .theme-toggle .icon-moon { display: none; }
 
 /* ── Hero ──────────────────────────────────────────────────── */
 
@@ -225,8 +282,9 @@ main > section + section { border-top: 1px solid var(--line); }
 .btn:hover { background: var(--accent); }
 
 @media (prefers-color-scheme: dark) {
-  .btn:hover { background: #C2D0BE; }
+  :root:not([data-theme="light"]) .btn:hover { background: #C2D0BE; }
 }
+:root[data-theme="dark"] .btn:hover { background: #C2D0BE; }
 
 .btn-quiet {
   background: transparent;
@@ -408,6 +466,7 @@ main h3 {
   background: var(--bar-bg);
   color: var(--bar-ink);
   padding: 12px var(--s3);
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
   font-size: 0.9375rem;
 }
 
@@ -579,7 +638,8 @@ main h3 {
   height: 100dvh;
   max-width: 760px;
   margin-inline: auto;
-  padding-inline: var(--s3);
+  padding-left: calc(var(--s3) + env(safe-area-inset-left));
+  padding-right: calc(var(--s3) + env(safe-area-inset-right));
 }
 
 .app-header {
@@ -587,7 +647,8 @@ main h3 {
   align-items: center;
   justify-content: space-between;
   gap: var(--s2);
-  padding-block: var(--s2);
+  padding-top: calc(var(--s2) + env(safe-area-inset-top));
+  padding-bottom: var(--s2);
   border-bottom: 1px solid var(--line);
   flex: none;
 }
@@ -650,10 +711,25 @@ main h3 {
   padding-block: var(--s4);
 }
 
+/* On short screens the intro is taller than the thread area; centring it
+   then hides the top. Anchor to the top and allow normal scrolling. */
+@media (max-height: 820px) {
+  .thread-intro { margin-block: 0; padding-block: var(--s3); }
+}
+
 .thread-intro-mark {
   display: block;
+  /* The <img> carries its intrinsic 162x216 for retina sharpness; cap the
+     rendered size here or it swallows half a phone screen and pushes the
+     opener chips below the fold. Height-driven so the aspect ratio holds. */
+  width: auto;
+  height: 52px;
   margin: 0 0 var(--s3);
   opacity: 0.9;
+}
+
+@media (min-height: 760px) {
+  .thread-intro-mark { height: 64px; }
 }
 
 .thread-intro h1 {
@@ -745,6 +821,47 @@ main h3 {
   color: var(--ink);
 }
 
+/* The automatic crisis-safety message. Full width, not a side, so it
+   never reads as coming from either person in the conversation. */
+.bubble-safety {
+  align-self: stretch;
+  max-width: 100%;
+  background: var(--crisis-bg);
+  border-left: 3px solid var(--crisis-line);
+  border-radius: var(--radius);
+  padding: var(--s2) var(--s3);
+}
+
+.bubble-safety-lead {
+  margin: 0 0 var(--s2);
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.bubble-safety-list {
+  list-style: none;
+  margin: 0 0 var(--s2);
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.bubble-safety-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s2);
+  font-size: 0.9375rem;
+}
+
+.bubble-safety-list span { color: var(--ink-soft); }
+.bubble-safety-list a { color: var(--ink); font-weight: 500; }
+
+.bubble-safety-foot {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+}
+
 /* Seen from the listener's chair the sides swap: the person who
    wrote in sits on the left, the listener's own replies on the right. */
 
@@ -796,7 +913,8 @@ main h3 {
   flex: none;
   font-size: 0.8125rem;
   color: var(--ink-soft);
-  padding-block: var(--s1) var(--s2);
+  padding-top: var(--s1);
+  padding-bottom: calc(var(--s2) + env(safe-area-inset-bottom));
 }
 
 .composer-note-error { color: var(--crisis-line); }
@@ -874,7 +992,7 @@ main h3 {
 
 .console-side {
   border-right: 1px solid var(--line);
-  padding: var(--s2) var(--s3);
+  padding: calc(var(--s2) + env(safe-area-inset-top)) var(--s3) var(--s2);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -885,6 +1003,12 @@ main h3 {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--s2);
+}
+
+.console-side-head-actions {
+  display: flex;
+  align-items: center;
   gap: var(--s2);
 }
 
