@@ -1451,3 +1451,52 @@ main h3 {
 @media (min-width: 700px) {
   .composer-foot { padding-bottom: var(--s2); }
 }
+
+/* ============================================================
+   Desktop: full-screen chat
+   The shell spans the whole viewport so it reads as an app rather
+   than a document floating in whitespace. The conversation itself
+   stays in a readable column — bubbles stretched to 1900px are
+   unreadable, and the point of the screen is the talking.
+   ============================================================ */
+
+@media (min-width: 700px) {
+  .app {
+    max-width: none;
+    padding-left: calc(var(--s5) + env(safe-area-inset-left));
+    padding-right: calc(var(--s5) + env(safe-area-inset-right));
+  }
+
+  /* Header spans edge to edge: wordmark hard left, controls hard
+     right. This is what makes it feel full-screen. */
+  .app-header { padding-block: var(--s3) var(--s2); }
+
+  /* Everything below the header shares one centred reading column. */
+  .thread,
+  .composer,
+  .composer-foot,
+  .app-note {
+    width: 100%;
+    max-width: 880px;
+    margin-inline: auto;
+  }
+
+  .thread { padding-block: var(--s5); }
+
+  .thread-intro { max-width: 52ch; }
+
+  /* Bubbles can afford to be a little narrower than the column so
+     the left/right sides stay legible as sides. */
+  .bubble { max-width: 68%; }
+
+  .composer textarea { font-size: 1.0625rem; }
+}
+
+/* Very wide screens: more breathing room at the edges, but the
+   reading column does not grow with them. */
+@media (min-width: 1400px) {
+  .app {
+    padding-left: calc(var(--s7) + env(safe-area-inset-left));
+    padding-right: calc(var(--s7) + env(safe-area-inset-right));
+  }
+}
