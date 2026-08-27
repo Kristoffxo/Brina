@@ -85,22 +85,13 @@
           <ul class="mood-grid" id="mood-grid"></ul>
         </div>
 
-        <div class="setup-block">
+        <div class="setup-block setup-block-name">
           <label class="setup-label" for="display-name">
             Choose a name for a better conversation
           </label>
           <input type="text" id="display-name" class="setup-name" maxlength="24"
                  placeholder="Anything you like &mdash; made-up is fine" autocomplete="off"
                  spellcheck="false">
-        </div>
-
-        <div class="setup-block">
-          <p class="setup-label">Or start with one of these</p>
-          <ul class="opener-chips">
-            <li><button type="button" class="opener-chip">Today was long and I don&rsquo;t really know why.</button></li>
-            <li><button type="button" class="opener-chip">I haven&rsquo;t really spoken to anyone in a while.</button></li>
-            <li><button type="button" class="opener-chip">Nothing happened. I just don&rsquo;t want to sit alone right now.</button></li>
-          </ul>
         </div>
       </div>
 
@@ -113,7 +104,7 @@
   <!-- ── Composer ─────────────────────────────────────────── -->
   <form class="composer" id="composer" autocomplete="off">
     <label class="visually-hidden" for="input">Your message</label>
-    <textarea id="input" rows="1" placeholder="Type here&hellip;" maxlength="4000"></textarea>
+    <textarea id="input" rows="1" placeholder="Say hey&hellip;" maxlength="4000"></textarea>
     <button type="submit" class="btn send-btn" id="send-btn" aria-label="Send">
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         <path d="M4 12 20 4l-8 16-2-6-6-2Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>

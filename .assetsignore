@@ -1,0 +1,10 @@
+# Everything here is source or tooling, not part of the site.
+.git
+.gitignore
+.wrangler
+.assetsignore
+wrangler.jsonc
+README.md
+schema.sql
+apply-this.sql
+node_modules

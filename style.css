@@ -1782,3 +1782,43 @@ main h3 {
 @media (max-width: 520px) {
   .pill { max-width: 38vw; }
 }
+
+/* ============================================================
+   Setup, final shape
+   Mood and name are one decision made in one place, so they sit
+   together in a single column rather than being pushed apart by
+   a two-column grid. The conversation suggestions are gone; the
+   message box itself now says "Say hey…", which is a lower bar
+   than a paragraph someone has to adopt as their own words.
+   ============================================================ */
+
+@media (min-width: 860px) {
+  .setup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s3);
+    max-width: 560px;
+  }
+  .setup-block:nth-child(1),
+  .setup-block:nth-child(2) { grid-column: auto; grid-row: auto; }
+}
+
+.setup-block-name { margin-top: 0; }
+
+.setup-name { max-width: 100%; }
+
+@media (min-width: 860px) {
+  .setup-name { max-width: 360px; }
+}
+
+/* With the suggestions gone there is room to breathe again. */
+@media (min-width: 860px) and (max-height: 900px) {
+  .thread-intro-mark { display: block; height: 44px; }
+  .thread-intro h1 { font-size: 2rem; }
+  .setup { gap: var(--s3); }
+}
+
+@media (max-height: 900px) {
+  .intro-fine { margin-top: var(--s3); padding-top: var(--s2); }
+  .thread-intro h1 { margin-bottom: 4px; }
+}

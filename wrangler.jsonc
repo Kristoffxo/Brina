@@ -1,0 +1,12 @@
+{
+  // Brina is a static site served by a Worker with the assets binding.
+  // Without this file the GitHub-connected build has nothing to act on
+  // and fails, which is why brina.in kept serving an old deployment.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "brina",
+  "compatibility_date": "2026-08-01",
+  "assets": {
+    "directory": ".",
+    "not_found_handling": "404-page"
+  }
+}
