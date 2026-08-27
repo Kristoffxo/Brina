@@ -1635,3 +1635,150 @@ main h3 {
 @media (min-width: 700px) {
   .pill { max-width: 340px; }
 }
+
+/* ============================================================
+   Setup panel — refined
+   Three quiet blocks: mood, name, openers. Replaces the old fact
+   chips, which were marketing on a page that should not be selling.
+   ============================================================ */
+
+.setup {
+  margin-top: var(--s5);
+  padding-top: 0;
+  border-top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+}
+
+.setup-block { display: block; }
+
+.setup-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 var(--s2);
+  display: block;
+  font-weight: 500;
+}
+
+.mood-grid { gap: 4px; }
+
+.mood {
+  padding: 10px 4px 9px;
+  border-radius: 10px;
+  gap: 6px;
+}
+
+/* A soft ring rather than a heavy border — the avatar colour is
+   already doing the work of saying which one is chosen. */
+.mood-on {
+  border-color: transparent;
+  background: var(--bg-sunk);
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+
+.mood .avatar-svg { width: 36px; height: 36px; }
+
+.mood-label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.01em;
+}
+
+.setup-name {
+  max-width: none;
+  padding: 12px var(--s2);
+  font-size: 0.9375rem;
+}
+
+.setup-name::placeholder { color: var(--ink-soft); opacity: 0.75; }
+
+/* The hint moved into the placeholder, so the standalone line goes. */
+.setup-hint { display: none; }
+
+.opener-chips { gap: 6px; }
+
+.opener-chip {
+  font-family: var(--sans);
+  font-size: 0.875rem;
+  padding: 11px var(--s2);
+  color: var(--ink-soft);
+  background: transparent;
+  border-color: var(--line);
+}
+
+.opener-chip:hover {
+  color: var(--ink);
+  background: var(--bg-sunk);
+  border-color: var(--accent);
+}
+
+.intro-lead {
+  font-size: 1.0625rem;
+  max-width: 42ch;
+}
+
+.intro-fine {
+  margin-top: var(--s5);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--line);
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+}
+
+@media (min-width: 700px) {
+  .setup { gap: var(--s5); }
+  .mood .avatar-svg { width: 40px; height: 40px; }
+  .mood-label { font-size: 0.75rem; }
+  .setup-name { max-width: 420px; }
+}
+
+/* On a wide screen the setup was 470px taller than the thread, so the
+   name field fell below the fold — the one thing we are asking people
+   to fill in. There is plenty of unused width, so use it: moods on the
+   left, name and openers stacked on the right. */
+@media (min-width: 860px) {
+  .setup {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    column-gap: var(--s6);
+    row-gap: var(--s4);
+    align-items: start;
+  }
+
+  .setup-block:nth-child(1) { grid-column: 1; grid-row: 1 / span 2; }
+  .setup-block:nth-child(2) { grid-column: 2; grid-row: 1; }
+  .setup-block:nth-child(3) { grid-column: 2; grid-row: 2; }
+
+  .setup-name { max-width: none; }
+}
+
+/* Short viewports: trim the decorative mark and the rhythm before
+   trimming anything functional. */
+@media (max-height: 900px) {
+  .thread-intro-mark { height: 44px; margin-bottom: var(--s2); }
+  .setup { margin-top: var(--s4); }
+  .intro-fine { margin-top: var(--s4); }
+}
+
+/* Laptop screens are wide but not tall. Trim decoration and rhythm so
+   the mood grid, the name field and the openers all sit above the fold
+   without touching type sizes. */
+@media (min-width: 860px) and (max-height: 900px) {
+  .thread-intro-mark { display: none; }
+  .thread { padding-block: var(--s3); }
+  .thread-intro h1 { font-size: 1.75rem; }
+  .intro-lead { margin-top: 6px; }
+  .setup { margin-top: var(--s3); row-gap: var(--s3); }
+  .intro-fine {
+    margin-top: var(--s3);
+    padding-top: var(--s2);
+  }
+  .opener-chip { padding: 9px var(--s2); }
+}
+
+/* Leave the wordmark room to breathe on narrow screens. */
+@media (max-width: 520px) {
+  .pill { max-width: 38vw; }
+}

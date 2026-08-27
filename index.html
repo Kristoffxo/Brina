@@ -73,37 +73,36 @@
       <img class="thread-intro-mark" src="assets/mark-large.png" alt="" width="162" height="216">
 
       <h1>Say whatever you like.</h1>
-      <p class="intro-lead">Nobody knows who you are. No name, no account, no sign-up &mdash;
-         and when you end it, it&rsquo;s deleted.</p>
-
-      <ul class="intro-facts">
-        <li>Free, always</li>
-        <li>A real person, not a bot</li>
-        <li>Hindi, English, or a mix</li>
-      </ul>
+      <p class="intro-lead">Nobody knows who you are. No name, no account, no sign-up
+         &mdash; and when you end it, it&rsquo;s deleted.</p>
 
       <!-- Mood + name. Both optional; the chat works without either.
            The mood is for the listener's benefit, the name is for the
            person's own comfort. -->
       <div class="setup" id="setup">
-        <p class="setup-label">How are you feeling right now?</p>
-        <ul class="mood-grid" id="mood-grid"></ul>
+        <div class="setup-block">
+          <p class="setup-label">How are you feeling?</p>
+          <ul class="mood-grid" id="mood-grid"></ul>
+        </div>
 
-        <label class="setup-label setup-label-name" for="display-name">
-          Choose a name for a better conversation
-        </label>
-        <input type="text" id="display-name" class="setup-name" maxlength="24"
-               placeholder="Anything you like" autocomplete="off"
-               spellcheck="false">
-        <p class="setup-hint">Made-up is fine. It just gives us something to call you.</p>
+        <div class="setup-block">
+          <label class="setup-label" for="display-name">
+            Choose a name for a better conversation
+          </label>
+          <input type="text" id="display-name" class="setup-name" maxlength="24"
+                 placeholder="Anything you like &mdash; made-up is fine" autocomplete="off"
+                 spellcheck="false">
+        </div>
+
+        <div class="setup-block">
+          <p class="setup-label">Or start with one of these</p>
+          <ul class="opener-chips">
+            <li><button type="button" class="opener-chip">Today was long and I don&rsquo;t really know why.</button></li>
+            <li><button type="button" class="opener-chip">I haven&rsquo;t really spoken to anyone in a while.</button></li>
+            <li><button type="button" class="opener-chip">Nothing happened. I just don&rsquo;t want to sit alone right now.</button></li>
+          </ul>
+        </div>
       </div>
-
-      <p class="thread-intro-label">Not sure how to start? Tap one.</p>
-      <ul class="opener-chips">
-        <li><button type="button" class="opener-chip">Today was long and I don&rsquo;t really know why.</button></li>
-        <li><button type="button" class="opener-chip">I haven&rsquo;t really spoken to anyone in a while.</button></li>
-        <li><button type="button" class="opener-chip">Nothing happened. I just don&rsquo;t want to sit alone right now.</button></li>
-      </ul>
 
       <p class="intro-fine">For adults, 18 and over. This isn&rsquo;t therapy or crisis support &mdash;
          if you&rsquo;re in danger right now, call <a href="tel:14416">14416</a>.</p>
