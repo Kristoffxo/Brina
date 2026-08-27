@@ -47,6 +47,7 @@ let token   = null;
 let claimed = true;
 let open    = null;
 let timer   = null;
+let openRow = null;      // the list row for the open conversation
 const rendered = new Map(); // message id -> { el, readAt }
 
 /* ---- Boot ------------------------------------------------- */
@@ -185,6 +186,29 @@ noteInput.addEventListener('change', savePresence);
 
 /* ---- The list --------------------------------------------- */
 
+function esc(str) {
+  return String(str).replace(/[&<>"']/g, function (ch) {
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch];
+  });
+}
+
+// What to call this person in the console. The chosen name if they
+// gave one, otherwise the short id — never nothing.
+function whoHTML(c, size) {
+  const avatar = window.BRINA_MOODS
+    ? window.BRINA_MOODS.svg(c.mood, size || 26)
+    : '';
+  const moodLabel = window.BRINA_MOODS ? window.BRINA_MOODS.label(c.mood) : null;
+  const name = c.display_name ? esc(c.display_name) : c.conv_id.slice(0, 8);
+
+  return '<span class="who">' + avatar +
+         '<span class="who-text">' +
+           '<span class="who-name">' + name + '</span>' +
+           (moodLabel ? '<span class="who-mood">' + moodLabel + '</span>' : '') +
+         '</span></span>';
+}
+
+
 function ago(iso) {
   const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
   if (s < 60) return 'just now';
@@ -220,7 +244,7 @@ async function refresh() {
     btn.className = 'convo' + (open === c.conv_id ? ' convo-open' : '');
 
     btn.innerHTML =
-      '<span class="convo-id">' + c.conv_id.slice(0, 8) +
+      '<span class="convo-id">' + whoHTML(c, 26) +
         (c.waiting ? ' <span class="waiting-dot" title="waiting on you"></span>' : '') +
       '</span>' +
       '<span class="convo-meta">' + ago(c.last_at) +
@@ -228,9 +252,17 @@ async function refresh() {
         (c.visitor_here ? ' · <span class="here">here now</span>' : '') +
       '</span>';
 
-    btn.addEventListener('click', function () { openThread(c.conv_id); });
+    btn.addEventListener('click', function () { openThread(c.conv_id, c); });
     li.appendChild(btn);
     list.appendChild(li);
+  }
+
+  // Refresh the header identity in case the mood or name is only now
+  // arriving (the row is created before the first message lands).
+  const current = rows.find(function (r) { return r.conv_id === open; });
+  if (current) {
+    openRow = current;
+    openId.innerHTML = whoHTML(current, 30);
   }
 
   if (open && !rows.some(function (r) { return r.conv_id === open; })) {
@@ -243,13 +275,18 @@ async function refresh() {
 
 /* ---- One conversation ------------------------------------- */
 
-async function openThread(id) {
+async function openThread(id, row) {
   open = id;
   rendered.clear();
   thread.innerHTML = '';
   emptyState.hidden = true;
   threadWrap.hidden = false;
-  openId.textContent = id.slice(0, 8);
+
+  // Keep the row so the header can show who this is even before the
+  // next list refresh lands.
+  if (row) openRow = row;
+  openId.innerHTML = openRow ? whoHTML(openRow, 30) : esc(id.slice(0, 8));
+
   await pull();
   reply.focus();
 }
@@ -363,6 +400,7 @@ deleteBtn.addEventListener('click', async function () {
 
 function closeThread(message) {
   open = null;
+  openRow = null;
   threadWrap.hidden = true;
   emptyState.hidden = false;
   emptyState.querySelector('p').textContent = message;

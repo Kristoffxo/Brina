@@ -29,6 +29,7 @@ const STORE = sessionStorage;
 let session  = null;   // { conversationId, token }
 let polling  = null;
 let sending  = false;
+let chosenMood = null;   // set by the mood grid, sent when the conversation starts
 const rendered = new Map(); // message id -> { el, readAt }
 
 /* ---- Setup ------------------------------------------------ */
@@ -59,11 +60,57 @@ function start() {
   }
   refreshStatus();
   setInterval(refreshStatus, 30000);
+  wireMoods();
   wireOpeners();
   if (session) poll().then(startPolling);
 }
 
 /* ---- Opener chips (fill the blank first screen) ------------ */
+
+// The mood grid is built from the shared definitions rather than
+// hard-coded markup, so the console and the chat can never disagree
+// about what a mood looks like.
+function wireMoods() {
+  const grid = document.getElementById('mood-grid');
+  if (!grid || !window.BRINA_MOODS) return;
+
+  window.BRINA_MOODS.list.forEach(function (m) {
+    const li = document.createElement('li');
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mood';
+    btn.dataset.mood = m.id;
+    btn.setAttribute('aria-pressed', 'false');
+    btn.innerHTML = window.BRINA_MOODS.svg(m.id, 40) +
+                    '<span class="mood-label">' + m.label + '</span>';
+
+    btn.addEventListener('click', function () {
+      // Tapping the selected mood again clears it — nobody should be
+      // trapped into declaring a feeling they did not mean to pick.
+      const already = chosenMood === m.id;
+      grid.querySelectorAll('.mood').forEach(function (el) {
+        el.classList.remove('mood-on');
+        el.setAttribute('aria-pressed', 'false');
+      });
+      if (already) {
+        chosenMood = null;
+      } else {
+        chosenMood = m.id;
+        btn.classList.add('mood-on');
+        btn.setAttribute('aria-pressed', 'true');
+      }
+    });
+
+    li.appendChild(btn);
+    grid.appendChild(li);
+  });
+}
+
+function chosenName() {
+  const el = document.getElementById('display-name');
+  return el ? el.value.trim().slice(0, 24) : '';
+}
 
 function wireOpeners() {
   document.querySelectorAll('.opener-chip').forEach(function (chip) {
@@ -90,9 +137,11 @@ async function refreshStatus() {
   if (row.is_available) {
     pill.dataset.state = 'on';
     pillText.textContent = row.note || 'Someone is here';
+    pill.title = pillText.textContent;
   } else {
     pill.dataset.state = 'off';
     pillText.textContent = row.note || 'Nobody is here right now';
+    pill.title = pillText.textContent;
   }
 }
 
@@ -287,7 +336,10 @@ async function send() {
 
   try {
     if (!session) {
-      const { data, error } = await client.rpc('start_conversation');
+      const { data, error } = await client.rpc('start_conversation', {
+        p_name: chosenName() || null,
+        p_mood: chosenMood
+      });
       if (error) throw error;
       const row = Array.isArray(data) ? data[0] : data;
       session = { conversationId: row.conversation_id, token: row.visitor_token };

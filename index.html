@@ -82,6 +82,22 @@
         <li>Hindi, English, or a mix</li>
       </ul>
 
+      <!-- Mood + name. Both optional; the chat works without either.
+           The mood is for the listener's benefit, the name is for the
+           person's own comfort. -->
+      <div class="setup" id="setup">
+        <p class="setup-label">How are you feeling right now?</p>
+        <ul class="mood-grid" id="mood-grid"></ul>
+
+        <label class="setup-label setup-label-name" for="display-name">
+          Choose a name for a better conversation
+        </label>
+        <input type="text" id="display-name" class="setup-name" maxlength="24"
+               placeholder="Anything you like" autocomplete="off"
+               spellcheck="false">
+        <p class="setup-hint">Made-up is fine. It just gives us something to call you.</p>
+      </div>
+
       <p class="thread-intro-label">Not sure how to start? Tap one.</p>
       <ul class="opener-chips">
         <li><button type="button" class="opener-chip">Today was long and I don&rsquo;t really know why.</button></li>
@@ -281,6 +297,7 @@
 </aside>
 
 <script src="vendor/supabase.js"></script>
+<script src="avatars.js"></script>
 <script src="config.js"></script>
 <script src="chat.js"></script>
 <script src="drawer.js"></script>

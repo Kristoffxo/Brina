@@ -38,6 +38,14 @@ create table if not exists public.messages (
 
 alter table public.messages add column if not exists read_at timestamptz;
 
+-- Chosen nickname and mood. Both optional, both set once when the
+-- conversation starts. The name is whatever the person types — it is
+-- not verified and is not meant to be real; it exists so the listener
+-- has something to call them. The mood tells the listener what they
+-- are walking into before they read a word.
+alter table public.conversations add column if not exists display_name text;
+alter table public.conversations add column if not exists mood text;
+
 create index if not exists messages_conversation_idx
   on public.messages (conversation_id, id);
 
@@ -102,14 +110,38 @@ revoke all on public.listener_presence from anon, authenticated;
 
 -- ══ Visitor ═════════════════════════════════════════════════
 
-create or replace function public.start_conversation()
+-- Defaults keep the old no-argument call working, so a client that
+-- has not been updated still starts a conversation successfully.
+create or replace function public.start_conversation(
+  p_name text default null,
+  p_mood text default null
+)
 returns table (conversation_id uuid, visitor_token uuid)
 language plpgsql security definer set search_path = public
 as $$
 declare
   new_id uuid; new_token uuid;
+  clean_name text;
+  clean_mood text;
 begin
-  insert into public.conversations default values
+  -- Trim, cap, and drop to null if empty. A 4000-character "nickname"
+  -- is not a nickname.
+  clean_name := nullif(btrim(coalesce(p_name, '')), '');
+  if clean_name is not null then
+    clean_name := left(clean_name, 24);
+  end if;
+
+  -- Only moods this build knows about. Anything else is stored as null
+  -- rather than trusted, so the console never renders an unknown value.
+  clean_mood := lower(nullif(btrim(coalesce(p_mood, '')), ''));
+  if clean_mood is not null and clean_mood not in (
+    'okay','happy','excited','calm','lonely','tired','anxious','sad','numb','angry'
+  ) then
+    clean_mood := null;
+  end if;
+
+  insert into public.conversations (display_name, mood)
+  values (clean_name, clean_mood)
   returning id, conversations.visitor_token into new_id, new_token;
 
   conversation_id := new_id;
@@ -307,7 +339,8 @@ drop function if exists public.listener_conversations(uuid);
 create function public.listener_conversations(p_token uuid)
 returns table (
   conv_id uuid, started_at timestamptz, last_at timestamptz,
-  visitor_here boolean, message_count bigint, waiting boolean
+  visitor_here boolean, message_count bigint, waiting boolean,
+  display_name text, mood text
 )
 language plpgsql security definer set search_path = public
 as $$
@@ -325,7 +358,9 @@ begin
            coalesce((select m2.sender = 'visitor'
                        from public.messages m2
                       where m2.conversation_id = c.id
-                      order by m2.id desc limit 1), false)
+                      order by m2.id desc limit 1), false),
+           c.display_name,
+           c.mood
     from public.conversations c
     order by c.last_message_at desc
     limit 100;
@@ -448,7 +483,7 @@ $$;
 
 -- ── Who may call what ───────────────────────────────────────
 
-grant execute on function public.start_conversation()                         to anon;
+grant execute on function public.start_conversation(text, text)               to anon;
 grant execute on function public.visitor_send(uuid, uuid, text)               to anon;
 grant execute on function public.visitor_poll(uuid, uuid)                     to anon;
 grant execute on function public.visitor_close(uuid, uuid)                    to anon;

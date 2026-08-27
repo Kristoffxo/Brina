@@ -1500,3 +1500,138 @@ main h3 {
     padding-right: calc(var(--s7) + env(safe-area-inset-right));
   }
 }
+
+/* ============================================================
+   Mood + name setup
+   Both optional. Shown only on the empty intro screen, and gone
+   the moment the conversation starts.
+   ============================================================ */
+
+.setup {
+  margin-top: var(--s4);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--line);
+}
+
+.setup-label {
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+  margin: 0 0 var(--s2);
+  display: block;
+}
+
+.setup-label-name { margin-top: var(--s3); }
+
+.mood-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--s1);
+}
+
+@media (max-width: 460px) {
+  .mood-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.mood {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 9px 3px 8px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font: inherit;
+  color: var(--ink-soft);
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.mood:hover { background: var(--bg-sunk); }
+
+/* The chosen mood is marked with a ring and a darker label rather
+   than a fill, so the avatar's own colour stays readable. */
+.mood-on {
+  border-color: var(--accent);
+  background: var(--bg-sunk);
+  color: var(--ink);
+}
+
+.mood .avatar-svg { display: block; width: 34px; height: 34px; }
+
+.mood-label {
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.setup-name {
+  width: 100%;
+  max-width: 320px;
+  font: inherit;
+  font-size: 0.9375rem;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px var(--s2);
+}
+
+.setup-name:focus-visible { border-color: var(--accent); }
+
+.setup-hint {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  margin: 6px 0 0;
+}
+
+/* ── Avatar + name as shown in the console ─────────────────── */
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: var(--s1);
+  min-width: 0;
+}
+
+.who .avatar-svg { display: block; flex: none; }
+
+.who-text { min-width: 0; }
+
+.who-name {
+  display: block;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.who-mood {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+/* The availability note is free text the listener types, so it can be
+   any length. Left alone, a long one wraps to three lines and squeezes
+   the wordmark off the header. Keep it to one line and let it ellipsis;
+   the full text stays available as a tooltip. */
+.pill {
+  max-width: 46vw;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.pill > span:not(.pill-dot) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 700px) {
+  .pill { max-width: 340px; }
+}
