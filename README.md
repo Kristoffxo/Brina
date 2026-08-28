@@ -1,7 +1,7 @@
-# Brina 1.0 — text chat
+# Brina — text chat and paid phone sessions
 
-A free, anonymous, text-only place to talk. This is **1.0** — chat only,
-no bookings and no calls. Paid phone sessions live in Brina 2.0. Landing page, visitor chat, and a
+A free, anonymous, text-only place to talk. Text chat is free and anonymous. Paid phone sessions with trained
+listeners are on `sessions.html`, with an urgent path straight to 14416. Landing page, visitor chat, and a
 listener console. Static files plus a Supabase backend — no server to run, no
 build step.
 
@@ -13,6 +13,8 @@ style.css     everything, both themes
 script.js     landing page only
 config.js     the two values you fill in
 schema.sql    the whole database, for a rebuild from scratch
+sessions.html booking + urgent call        → sessions.js
+sessions-schema.sql  run on top of schema.sql to switch sessions on
 ```
 
 ---

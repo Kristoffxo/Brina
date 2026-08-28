@@ -1945,3 +1945,322 @@ main h3 {
 @media (min-width: 700px) {
   .status-note-text { font-size: 0.875rem; max-width: 78ch; }
 }
+
+/* ============================================================
+   Brina 2.0 — phone sessions
+   ============================================================ */
+
+.sessions-body { height: auto; overflow: auto; }
+.sessions-body .app { height: auto; min-height: 100dvh; }
+
+.header-link {
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 2px;
+}
+.header-link:hover { color: var(--ink); border-color: var(--accent); }
+
+.wordmark-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  text-decoration: none;
+  color: inherit;
+}
+
+.sessions { padding-block: var(--s5) var(--s6); }
+
+/* ── Urgent ────────────────────────────────────────────────── */
+
+.urgent {
+  background: var(--crisis-bg);
+  border-left: 3px solid var(--crisis-line);
+  border-radius: var(--radius);
+  padding: var(--s3);
+  margin-bottom: var(--s6);
+}
+
+.urgent-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  flex-wrap: wrap;
+}
+
+.urgent-title {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin: 0 0 4px;
+}
+
+.urgent-copy {
+  color: var(--ink-soft);
+  font-size: 0.9375rem;
+  max-width: 46ch;
+}
+
+.btn-urgent {
+  background: var(--crisis-line);
+  color: #FFF9F5;
+  border: 0;
+  cursor: pointer;
+  flex: none;
+  font-family: inherit;
+}
+.btn-urgent:hover { background: #8E4E33; }
+
+/* ── Head ──────────────────────────────────────────────────── */
+
+.sessions-head { margin-bottom: var(--s6); }
+
+.sessions-head h1 {
+  font-size: clamp(1.9rem, 5vw, 2.75rem);
+  margin-bottom: var(--s3);
+}
+
+.sessions-lede {
+  font-size: 1.0625rem;
+  color: var(--ink-soft);
+  max-width: 52ch;
+  margin-bottom: var(--s4);
+}
+
+/* The honest description of what is being sold. Bordered rather
+   than tucked away — if someone reads one thing before paying,
+   this should be it. */
+.sessions-truth {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--s3);
+  max-width: 68ch;
+  display: grid;
+  gap: var(--s2);
+}
+
+.sessions-truth p {
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+.sessions-truth strong { color: var(--ink); font-weight: 500; }
+
+/* ── Calendar ──────────────────────────────────────────────── */
+
+.slots-head { margin-bottom: var(--s3); }
+
+.slots-head h2 {
+  font-size: 1.375rem;
+  margin-bottom: 4px;
+}
+
+.slots-note { font-size: 0.875rem; color: var(--ink-soft); }
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--s2);
+}
+
+.cal-day {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--s2);
+  background: var(--bg-sunk);
+}
+
+.cal-day-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 500;
+  margin-bottom: var(--s2);
+}
+
+.cal-slot {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 9px 10px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  font: inherit;
+  color: var(--ink);
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+.cal-slot:last-child { margin-bottom: 0; }
+.cal-slot:hover { border-color: var(--accent); }
+
+.cal-time { display: block; font-weight: 500; font-size: 0.9375rem; }
+.cal-meta { display: block; font-size: 0.75rem; color: var(--ink-soft); }
+.cal-who  { display: block; font-size: 0.6875rem; color: var(--ink-soft); margin-top: 3px; }
+.cal-qual { opacity: 0.85; }
+
+.sessions-fine {
+  margin-top: var(--s6);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--line);
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+}
+
+/* ── Modals ────────────────────────────────────────────────── */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 18, 16, 0.45);
+  z-index: 60;
+}
+.modal-backdrop[hidden] { display: none; }
+
+.modal {
+  position: fixed;
+  z-index: 61;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: var(--s4);
+  box-shadow: 0 18px 50px rgba(20, 18, 16, 0.18);
+}
+.modal[hidden] { display: none; }
+
+body.modal-open { overflow: hidden; }
+
+.modal-title {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 400;
+  line-height: 1.25;
+  margin: 0 0 var(--s2);
+}
+
+.modal-copy {
+  color: var(--ink-soft);
+  font-size: 0.9375rem;
+  margin-bottom: var(--s3);
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--s2);
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: var(--s3);
+}
+
+.modal-fine {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  margin-top: var(--s2);
+}
+
+.modal-error {
+  margin-top: var(--s2);
+  font-size: 0.875rem;
+  color: var(--crisis-line);
+}
+.modal-error[hidden] { display: none; }
+
+.field-label {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+  margin: var(--s2) 0 5px;
+}
+
+.field-optional {
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.field {
+  width: 100%;
+  font: inherit;
+  font-size: 0.9375rem;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px var(--s2);
+  resize: vertical;
+}
+.field:focus-visible { border-color: var(--accent); }
+
+@media (min-width: 700px) {
+  .sessions { padding-block: var(--s6) var(--s7); }
+  .urgent { padding: var(--s4); }
+}
+
+/* ============================================================
+   Status note
+   The listener's own words to whoever arrives. It used to be a
+   pill in the header, where a long message was cut off with an
+   ellipsis and no way to see the rest. It now sits under the
+   header, wraps freely, and is readable in full on any screen.
+   Quiet by design — a label at low opacity, small type — so it
+   informs without competing with the page.
+   ============================================================ */
+
+.status-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s1);
+  padding: 10px 0 12px;
+  border-bottom: 1px solid var(--line);
+}
+.status-note[hidden] { display: none; }
+
+.status-note-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink-soft);
+  flex: none;
+  margin-top: 7px;
+  opacity: 0.5;
+}
+
+.status-note[data-state="on"] .status-note-dot {
+  background: var(--accent-ink);
+  opacity: 1;
+}
+
+.status-note-body { min-width: 0; }
+
+.status-note-label {
+  display: block;
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  opacity: 0.55;
+  margin-bottom: 1px;
+}
+
+.status-note-text {
+  display: block;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  /* Wraps rather than truncates — the whole point of the change. */
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 700px) {
+  .status-note-text { font-size: 0.875rem; max-width: 78ch; }
+}
