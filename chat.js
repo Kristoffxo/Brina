@@ -18,7 +18,7 @@ const form      = document.getElementById('composer');
 const input     = document.getElementById('input');
 const sendBtn   = document.getElementById('send-btn');
 const endBtn    = document.getElementById('end-btn');
-const pill      = document.getElementById('status-pill');
+const statusNote = document.getElementById('status-note');
 const pillText  = document.getElementById('status-text');
 const warning   = document.getElementById('config-warning');
 const note      = document.getElementById('composer-note');
@@ -42,8 +42,9 @@ if (!client) {
   warning.hidden = false;
   input.disabled = true;
   sendBtn.disabled = true;
-  pillText.textContent = 'Offline';
-  pill.dataset.state = 'off';
+  pillText.textContent = 'Not connected.';
+  statusNote.dataset.state = 'off';
+  statusNote.hidden = false;
 } else {
   start();
 }
@@ -129,19 +130,18 @@ async function refreshStatus() {
   const row = Array.isArray(data) ? data[0] : data;
 
   if (error || !row) {
-    pill.dataset.state = 'unknown';
-    pillText.textContent = 'Status unknown';
+    statusNote.hidden = true;
     return;
   }
 
   if (row.is_available) {
-    pill.dataset.state = 'on';
-    pillText.textContent = row.note || 'Someone is here';
-    pill.title = pillText.textContent;
+    statusNote.dataset.state = 'on';
+    pillText.textContent = row.note || 'Someone is here right now.';
+    statusNote.hidden = false;
   } else {
-    pill.dataset.state = 'off';
-    pillText.textContent = row.note || 'Nobody is here right now';
-    pill.title = pillText.textContent;
+    statusNote.dataset.state = 'off';
+    pillText.textContent = row.note || 'Nobody is here right now — your message still gets read.';
+    statusNote.hidden = false;
   }
 }
 

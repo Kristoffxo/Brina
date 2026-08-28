@@ -1886,3 +1886,62 @@ main h3 {
 @media (min-width: 1500px) {
   .thread-intro { max-width: 1180px; column-gap: 120px; }
 }
+
+/* ============================================================
+   Status note
+   The listener's own words to whoever arrives. It used to be a
+   pill in the header, where a long message was cut off with an
+   ellipsis and no way to see the rest. It now sits under the
+   header, wraps freely, and is readable in full on any screen.
+   Quiet by design — a label at low opacity, small type — so it
+   informs without competing with the page.
+   ============================================================ */
+
+.status-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s1);
+  padding: 10px 0 12px;
+  border-bottom: 1px solid var(--line);
+}
+.status-note[hidden] { display: none; }
+
+.status-note-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink-soft);
+  flex: none;
+  margin-top: 7px;
+  opacity: 0.5;
+}
+
+.status-note[data-state="on"] .status-note-dot {
+  background: var(--accent-ink);
+  opacity: 1;
+}
+
+.status-note-body { min-width: 0; }
+
+.status-note-label {
+  display: block;
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  opacity: 0.55;
+  margin-bottom: 1px;
+}
+
+.status-note-text {
+  display: block;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  /* Wraps rather than truncates — the whole point of the change. */
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 700px) {
+  .status-note-text { font-size: 0.875rem; max-width: 78ch; }
+}
