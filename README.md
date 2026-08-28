@@ -1,6 +1,7 @@
-# Brina
+# Brina 1.0 — text chat
 
-A free, anonymous, text-only place to talk. Landing page, visitor chat, and a
+A free, anonymous, text-only place to talk. This is **1.0** — chat only,
+no bookings and no calls. Paid phone sessions live in Brina 2.0. Landing page, visitor chat, and a
 listener console. Static files plus a Supabase backend — no server to run, no
 build step.
 

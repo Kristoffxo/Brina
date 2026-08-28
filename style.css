@@ -1822,3 +1822,67 @@ main h3 {
   .intro-fine { margin-top: var(--s3); padding-top: var(--s2); }
   .thread-intro h1 { margin-bottom: 4px; }
 }
+
+/* ============================================================
+   Desktop intro — spread across the width
+   Stacked in one narrow column, the intro left most of a laptop
+   screen empty and read as a phone layout that had been zoomed.
+   On wide screens it becomes two balanced columns: what this is
+   on the left, what to choose on the right.
+   ============================================================ */
+
+@media (min-width: 1000px) {
+  .thread { padding-block: var(--s6); }
+
+  .thread-intro {
+    max-width: 1040px;
+    width: 100%;
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--s8);
+    row-gap: var(--s4);
+    align-items: start;
+  }
+
+  .thread-intro-mark { grid-column: 1; margin-bottom: var(--s3); }
+
+  .thread-intro h1 {
+    grid-column: 1;
+    font-size: 2.5rem;
+    margin-bottom: var(--s3);
+  }
+
+  .intro-lead {
+    grid-column: 1;
+    font-size: 1.125rem;
+    max-width: 38ch;
+  }
+
+  /* The setup sits in the right column and spans the rows the left
+     column uses, so both sides start at the same optical line. */
+  .setup {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    margin-top: 0;
+    max-width: none;
+    gap: var(--s4);
+  }
+
+  .mood-grid { gap: var(--s1); }
+  .mood .avatar-svg { width: 44px; height: 44px; }
+  .mood-label { font-size: 0.75rem; }
+  .setup-name { max-width: none; }
+
+  /* Full width underneath both columns. */
+  .intro-fine {
+    grid-column: 1 / -1;
+    margin-top: var(--s5);
+    max-width: none;
+  }
+}
+
+/* Very wide screens: let it breathe further rather than stretch. */
+@media (min-width: 1500px) {
+  .thread-intro { max-width: 1180px; column-gap: 120px; }
+}
