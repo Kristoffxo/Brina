@@ -52,9 +52,9 @@ where a.passphrase_hash is not null
 insert into public.listener_accounts (label, passphrase_hash, is_admin)
 select v.label, extensions.crypt(v.pass, extensions.gen_salt('bf', 10)), false
 from (values
-  ('Volunteer 1', 'velvet-lantern-56'),
-  ('Volunteer 2', 'monsoon-tamarind-38'),
-  ('Volunteer 3', 'pebble-cedar-25')
+  ('Volunteer 1', 'velvetlantern56'),
+  ('Volunteer 2', 'monsoontamarind38'),
+  ('Volunteer 3', 'pebblecedar25')
 ) as v(label, pass)
 where not exists (
   select 1 from public.listener_accounts a where a.label = v.label
