@@ -36,6 +36,9 @@ const deleteBtn   = document.getElementById('delete-btn');
 const toggle      = document.getElementById('available-toggle');
 const toggleLabel = document.getElementById('available-label');
 const noteInput   = document.getElementById('availability-note');
+const whoami      = document.getElementById('whoami');
+const volPanel    = document.getElementById('volunteers');
+const volList     = document.getElementById('volunteer-list');
 
 const KEY = 'brina.listener';
 
@@ -48,6 +51,7 @@ let claimed = true;
 let open    = null;
 let timer   = null;
 let openRow = null;      // the list row for the open conversation
+let me      = null;      // { label, display_name, is_admin }
 const rendered = new Map(); // message id -> { el, readAt }
 
 /* ---- Boot ------------------------------------------------- */
@@ -141,9 +145,124 @@ document.addEventListener('visibilitychange', function () {
 async function enterConsole() {
   signinView.hidden = true;
   consoleView.hidden = false;
+
+  await loadMe();
   loadPresence();
   await refresh();
   timer = setInterval(refresh, 3000);
+}
+
+/* ---- Who is signed in ------------------------------------- */
+
+async function loadMe() {
+  const { data, error } = await client.rpc('listener_me', { p_token: token });
+  if (error) {
+    // Pre-migration database: the console still works, there is just
+    // no per-person identity to show.
+    if (/listener_me/.test(error.message || '')) return;
+    if (/session expired/i.test(error.message || '')) signedOut();
+    return;
+  }
+
+  me = Array.isArray(data) ? data[0] : data;
+  if (!me) return;
+
+  whoami.textContent = me.display_name
+    ? me.display_name + (me.is_admin ? ' · admin' : '')
+    : me.label;
+  whoami.hidden = false;
+
+  // A volunteer who has not named themselves yet gets asked once.
+  if (!me.display_name && !me.is_admin) {
+    document.getElementById('name-backdrop').hidden = false;
+    document.getElementById('name-modal').hidden = false;
+    document.getElementById('name-input').focus();
+  }
+
+  if (me.is_admin) {
+    volPanel.hidden = false;
+    loadVolunteers();
+    setInterval(loadVolunteers, 15000);
+  }
+}
+
+document.getElementById('name-form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const val = document.getElementById('name-input').value.trim();
+  const err = document.getElementById('name-error');
+  if (!val) return;
+
+  const { error } = await client.rpc('listener_set_name', {
+    p_token: token, p_name: val
+  });
+
+  if (error) {
+    err.textContent = 'Could not save that. Try again.';
+    err.hidden = false;
+    return;
+  }
+
+  document.getElementById('name-backdrop').hidden = true;
+  document.getElementById('name-modal').hidden = true;
+  loadMe();
+});
+
+/* ---- Admin: who else is on ------------------------------- */
+
+function agoShort(iso) {
+  if (!iso) return 'never';
+  const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 60) return 'now';
+  if (s < 3600) return Math.floor(s / 60) + 'm';
+  if (s < 86400) return Math.floor(s / 3600) + 'h';
+  return Math.floor(s / 86400) + 'd';
+}
+
+async function loadVolunteers() {
+  if (!me || !me.is_admin) return;
+
+  const { data, error } = await client.rpc('admin_listeners', { p_token: token });
+  if (error || !data) return;
+
+  volList.innerHTML = '';
+
+  data.forEach(function (v) {
+    const li = document.createElement('li');
+    li.className = 'volunteer' + (v.signed_in_now ? ' volunteer-on' : '');
+
+    const name = v.display_name || v.label;
+    li.innerHTML =
+      '<span class="volunteer-dot" aria-hidden="true"></span>' +
+      '<span class="volunteer-body">' +
+        '<span class="volunteer-name">' + esc(name) +
+          (v.is_admin ? ' <span class="volunteer-tag">admin</span>' : '') +
+          (!v.is_active ? ' <span class="volunteer-tag volunteer-tag-off">off</span>' : '') +
+        '</span>' +
+        '<span class="volunteer-meta">' +
+          esc(v.label) + ' · ' +
+          (v.signed_in_now ? 'signed in now' : 'last seen ' + agoShort(v.last_seen_at)) +
+        '</span>' +
+      '</span>';
+
+    // Admins cannot be switched off from here — that is how you avoid
+    // locking yourself out of your own console.
+    if (!v.is_admin) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'volunteer-toggle';
+      btn.textContent = v.is_active ? 'Disable' : 'Enable';
+      btn.addEventListener('click', async function () {
+        if (v.is_active && !confirm('Sign ' + name + ' out and block their passcode?')) return;
+        await client.rpc('admin_set_active', {
+          p_token: token, p_account: v.account_id, p_active: !v.is_active
+        });
+        loadVolunteers();
+      });
+      li.appendChild(btn);
+    }
+
+    volList.appendChild(li);
+  });
 }
 
 function signedOut() {

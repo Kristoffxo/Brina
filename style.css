@@ -2264,3 +2264,101 @@ body.modal-open { overflow: hidden; }
 @media (min-width: 700px) {
   .status-note-text { font-size: 0.875rem; max-width: 78ch; }
 }
+
+/* ============================================================
+   Multiple listeners
+   Who is signed in, and — for the admin only — who else is.
+   ============================================================ */
+
+.whoami {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  opacity: 0.7;
+  margin-top: -4px;
+}
+.whoami[hidden] { display: none; }
+
+.volunteers {
+  border-top: 1px solid var(--line);
+  padding-top: var(--s2);
+  margin-top: var(--s1);
+}
+.volunteers[hidden] { display: none; }
+
+.volunteers-label {
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  opacity: 0.6;
+  margin-bottom: var(--s1);
+}
+
+.volunteer-list {
+  list-style: none;
+  margin: 0 0 var(--s2);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.volunteer {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s1);
+  padding: 6px 0;
+}
+
+.volunteer-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--line);
+  flex: none;
+  margin-top: 7px;
+}
+
+/* Green only while a session is actually live. */
+.volunteer-on .volunteer-dot { background: var(--accent-ink); }
+
+.volunteer-body { flex: 1; min-width: 0; }
+
+.volunteer-name {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--ink);
+}
+
+.volunteer-tag {
+  font-size: 0.5625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 0 4px;
+  vertical-align: 1px;
+}
+.volunteer-tag-off { color: var(--crisis-line); border-color: var(--crisis-line); }
+
+.volunteer-meta {
+  display: block;
+  font-size: 0.6875rem;
+  color: var(--ink-soft);
+  opacity: 0.8;
+}
+
+.volunteer-toggle {
+  background: none;
+  border: 0;
+  font: inherit;
+  font-size: 0.6875rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  padding: 4px 2px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  flex: none;
+}
+.volunteer-toggle:hover { color: var(--ink); }

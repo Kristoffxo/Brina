@@ -61,6 +61,8 @@
       </div>
     </div>
 
+    <p class="whoami" id="whoami" hidden></p>
+
     <div class="availability">
       <label class="switch">
         <input type="checkbox" id="available-toggle">
@@ -71,6 +73,12 @@
       <input type="text" id="availability-note" maxlength="60"
              placeholder="Optional note, e.g. back at 9pm">
     </div>
+
+    <!-- Admin only. Hidden for volunteers, populated by admin.js. -->
+    <section class="volunteers" id="volunteers" hidden>
+      <p class="volunteers-label">Volunteers</p>
+      <ul class="volunteer-list" id="volunteer-list"></ul>
+    </section>
 
     <p class="console-count" id="count">No conversations</p>
     <ul class="convo-list" id="convo-list"></ul>
@@ -101,6 +109,28 @@
     </div>
   </section>
 
+</div>
+
+<!-- ══ Name yourself (first sign-in) ═════════════════════════ -->
+<div class="modal-backdrop" id="name-backdrop" hidden></div>
+
+<div class="modal" id="name-modal" role="dialog" aria-modal="true"
+     aria-labelledby="name-title" hidden>
+  <h2 class="modal-title" id="name-title">What should we call you?</h2>
+  <p class="modal-copy">
+    This is what shows in the console so it&rsquo;s clear who is on shift.
+    First name is fine. The people you talk to never see it.
+  </p>
+
+  <form id="name-form">
+    <label class="visually-hidden" for="name-input">Your name</label>
+    <input type="text" id="name-input" class="field" maxlength="24"
+           placeholder="Your name" autocomplete="off" required>
+    <div class="modal-actions">
+      <button type="submit" class="btn" id="name-save">Save</button>
+    </div>
+    <p class="modal-error" id="name-error" hidden></p>
+  </form>
 </div>
 
 <script src="vendor/supabase.js"></script>
