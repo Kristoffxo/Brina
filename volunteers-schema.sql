@@ -50,7 +50,7 @@ where a.passphrase_hash is not null
 -- Passcodes are hashed here, exactly as the console does it, so
 -- the plaintext never lands in the database.
 insert into public.listener_accounts (label, passphrase_hash, is_admin)
-select v.label, crypt(v.pass, gen_salt('bf', 10)), false
+select v.label, extensions.crypt(v.pass, extensions.gen_salt('bf', 10)), false
 from (values
   ('Volunteer 1', 'velvet-lantern-56'),
   ('Volunteer 2', 'monsoon-tamarind-38'),
